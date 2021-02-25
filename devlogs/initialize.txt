@@ -1,0 +1,5 @@
+2/25/21 Jon
+
+1. Setup repo
+2. Setup skeleton layout for application
+
