@@ -1,5 +1,9 @@
-2/25/21 Jon
+2/25/21 (Jon)
 
 1. Setup repo
 2. Setup skeleton layout for application
+3. Add some html templates
+4. Setup for package build
+5. Update README.md with Flask setup instructions
+
 

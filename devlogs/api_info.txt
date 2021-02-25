@@ -1,0 +1,12 @@
+2/25/21 (Jon)
+
+All Stream Services API - $$$$ (1 week free trial)
+https://www.guidebox.com/docs
+
+Netflix API: Free tier (100 req/day + $0.10 after)
+https://rapidapi.com/unogs/api/unogs
+
+Amazon Video & Hulu API: Paid tier ($10/mo per service)
+https://rapidapi.com/user/Streamzui
+
+

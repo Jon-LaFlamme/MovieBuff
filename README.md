@@ -39,6 +39,9 @@ https://www.kaggle.com/phiitm/movie-posters
 
 https://www.kaggle.com/rounakbanik/the-movies-dataset 
 
+https://www.kaggle.com/rmisra/imdb-spoiler-dataset
+
+
 ######Non-Relational
 
 https://www.kaggle.com/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews#__sid=js0 
@@ -49,7 +52,7 @@ https://ai.stanford.edu/~amaas/data/sentiment/
 
 ####A: Flask
 
-######Installation
+#####Installation
 https://flask.palletsprojects.com/en/1.1.x/installation/#installation
 
 ######Quickstart Guide
@@ -58,3 +61,20 @@ https://flask.palletsprojects.com/en/1.1.x/quickstart/
 
 ######Layout
 https://flask.palletsprojects.com/en/1.1.x/tutorial/layout/
+
+######SQLAlchemy docs
+https://flask-sqlalchemy.palletsprojects.com/en/2.x/
+
+######Testing
+
+$ cd moviebuff
+
+*Once-only install unless configurations change*
+$ pip install -e .
+
+$ export FLASK_APP=flaskr
+
+$ export FLASK_ENV=development
+
+$ flask run
+

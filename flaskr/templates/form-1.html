@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %} Name and Location Form {% endblock %}
+{% block content %}
+{{super()}}
+        <h1>Search for a movie by title name:</h1>
+
+        <form method='POST' action="/process_query">
+            <center>
+            <input type="text" name="primaryTitle">
+            <input type="submit" value="Submit">
+            </center>
+            </form>
+
+        <h1>&nbsp</h1>
+{% endblock %}
