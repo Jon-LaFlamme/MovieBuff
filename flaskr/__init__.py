@@ -6,17 +6,22 @@ from flaskr import dbAPI
 
 #Initialize the Flask app and database
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'data.db'
-db = SQLAlchemy()
 
-#User class provides access to all SQLAlchemy functions and classes
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True)
-    pw_hash = db.Column(db.String(80))
+db_path = os.path.join(os.path.dirname(__file__), 'data.db')
+db_uri = 'sqlite:///{}'.format(db_path)
+app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+db = SQLAlchemy(app)
 
-    def __repr__(self):
-        return '<User %r>' % self.username
+
+#Example CREATE record
+title = dbAPI.TitleBasics(titleID='ttexample000', titleType='Documentary',\
+                        primaryTitle='Free Solo', originalTitle='Free Solo',\
+                        isAdult=False, startYear=2018, endYear=2018,\
+                        runtimeMinutes=100, genres=['Adventure','Documentary'])
+db.session.add(title)
+db.session.commit
+
+
 
 #TODO sample home page placeholder
 @app.route('/')
