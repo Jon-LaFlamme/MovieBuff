@@ -1,6 +1,10 @@
+'''
+Models.py defines the models for the relational database
+'''
+
 from flask import Flask
-from flaskr import __init__ as app
 from flask_sqlalchemy import SQLAlchemy
+
 
 db = SQLAlchemy()
 
