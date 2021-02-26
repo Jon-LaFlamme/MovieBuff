@@ -11,6 +11,10 @@
 9. Created tables in data.db for both schemas in models.py
 10. Loaded a single record into data.db
 11. Tested title query for <Free Solo> @ http://127.0.0.1:5000/form-1
+
+2/26/21 (Jon)
+
 12. Created new development branch 'crud' for next stage of development
+13. Added .gitignore generated from toptal.com
 
 

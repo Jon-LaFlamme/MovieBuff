@@ -4,93 +4,48 @@ A web application for finding TV/Film titles.
 
 ###Table of Contents
 
-#####I Description of Project
+####A Overview
 
-######A Functionality
+TODO:
 
-######B Architecture
+####B Functionality
 
-######C Tech Stack
+TODO:
 
-######D Datasets
+####C Architecture
 
-#####II Developer Guide
+TODO:
 
-######A Flask
+####D Tech Stack
 
-#### I: Description of Project
+TODO:
 
-####A: Functionality
+####E Datasets
 
-TODO: Description
+TODO:
 
-####B: Architecture
+####F Developer Guide
 
-TODO: Desciption
+/devlogs/data-info/
 
-####D: Tech Stack
+    datasets-explored.pdf: output from jupyter notebook that checks info and head for several datasets
 
-TODO: Desciption
+    IMDB-sets-descriptions.txt: Useful top-level description of all datasets downloaded from IMDB website 
 
-####D: Datasets
+    links-to-datasets.txt: All the candidate dataset source links copied from our project submission file
 
-######Relational 
+/devlogs/
 
-https://www.imdb.com/interfaces/ 
+    developer-guide.txt: Useful Flask links and local setup instructions
 
-https://www.kaggle.com/stefanoleone992/imdb-extensive-dataset?select=IMDb+movies.csv 
+    phase-0-notes.txt: Logs detailing development steps taken to setup the application
 
-https://www.kaggle.com/ashirwadsangwan/imdb-dataset 
+    project-tasks-overview.txt: Sample outline of potential project phases and tasks
 
-https://www.kaggle.com/ruchi798/movies-on-netflix-prime-video-hulu-and-disney 
-
-https://www.kaggle.com/ruchi798/tv-shows-on-netflix-prime-video-hulu-and-disney 
-
-https://www.kaggle.com/aungpyaeap/movie-streaming-datasets-iflix 
-
-https://www.kaggle.com/stefanoleone992/rotten-tomatoes-movies-and-critic-reviews-dataset 
-
-https://www.kaggle.com/shivamb/netflix-shows 
-
-https://www.kaggle.com/phiitm/movie-posters 
-
-https://www.kaggle.com/rounakbanik/the-movies-dataset 
-
-https://www.kaggle.com/rmisra/imdb-spoiler-dataset
+    streaming-services-api-info.txt: Some info about API services that show where you can stream a given title
 
 
-######Non-Relational
 
-https://www.kaggle.com/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews#__sid=js0 
 
-https://ai.stanford.edu/~amaas/data/sentiment/ 
 
-###II: Developer Guide
-
-####A: Flask
-
-#####Installation
-https://flask.palletsprojects.com/en/1.1.x/installation/#installation
-
-######Quickstart Guide
-
-https://flask.palletsprojects.com/en/1.1.x/quickstart/
-
-######Layout
-https://flask.palletsprojects.com/en/1.1.x/tutorial/layout/
-
-######SQLAlchemy docs
-https://flask-sqlalchemy.palletsprojects.com/en/2.x/
-
-######Testing
-
-$ cd moviebuff
-
-$ pip install -e .
-
-$ export FLASK_APP=flaskr
-
-$ export FLASK_ENV=development
-
-$ flask run
 

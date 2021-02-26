@@ -1,0 +1,48 @@
+===============================================================
+Phase I: Architecting relational database
+
+I.A)  ER model refinement 
+I.B)  Physical Data Model
+I.C)  HTML forms added to make additional queries (start with most obvious/essential)
+I.D)  Flask methods to handle HTML forms as REST requests
+I.E)  SQLAlchemy functions in separate modules (eg queries.py) to handle database operations
+I.F)  Write bulk/batch loader script to handle bulk database Create operations
+
+===============================================================
+Phase II: Implementing physical data model and loading up the data
+
+II.A)  Implement the physical data model by adding new and editing existing table schemas in “models.py”
+II.B)  Decide on how to handle data during development (see options 1 or 2)
+II.B.1)  Option 1:  Create complete but truncated test dataset that can be loaded onto database within Git’s file size limits of < 100mb
+II.B.2)  Option 2:  Configure a “.gitignore” file to circumvent this limitation. But each developer then needs to load and ingest all files into database locally after each clone
+II.C)  Upload data 
+II.C.1)  IF Option 1:  Load up truncated data into “data.db” via batch script and simply push changes to git
+II.C.2)  IF Option 2:  Deploy compressed files to the cloud so each team member can download, unzip, and run batch ingest on all data locally
+
+==============================================================
+Phase III: noSQL
+
+III.A)  Determine platform(s) (Neo4j, MongoDB, ElasticSearch, etc)
+III.B)  Build API for noSQL platform(s)
+III.C)  Load up data
+
+==============================================================
+Phase IV: Advanced SQL, Integration of SQL and noSQL operations
+
+IV.A)  Write support for complex SQL operations
+IV.B)  Integrate SQL and noSQL to collaborate on operations where appropriate
+
+==============================================================
+Phase V: Special function(s) (TBD)
+
+V.A)  Chatbot w/ AWS: Lex & Lambda (TBD)
+V.B)  Recommender system (TBD)
+V.C)  Other (TBD)
+
+==============================================================
+Phase VI: Test & Deployment
+
+VI.A)  Test all functions locally
+VI.B)  Deploy to UIUC-hosted container
+VI.C)  Test again on production env
+VI.D)  Publish
