@@ -2,8 +2,15 @@
 
 1. Setup repo
 2. Setup skeleton layout for application
-3. Add some html templates
-4. Setup for package build
-5. Update README.md with Flask setup instructions
+3. Added a ridiculous html template
+4. Configured app as a package
+5. Updated README.md with Flask setup instructions
+6. Two example Tables created in models.py
+7. Tile search query method added to queries.py
+8. Title search form created
+9. Created tables in data.db for both schemas in models.py
+10. Loaded a single record into data.db
+11. Tested title query for <Free Solo> @ http://127.0.0.1:5000/form-1
+12. Created new development branch 'crud' for next stage of development
 
 

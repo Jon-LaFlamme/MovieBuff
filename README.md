@@ -1,24 +1,41 @@
 # MovieBuff:
+
 A web application for finding TV/Film titles.
-#_____________________________
+
 ###Table of Contents
+
 #####I Description of Project
+
 ######A Functionality
+
 ######B Architecture
+
 ######C Tech Stack
+
 ######D Datasets
+
 #####II Developer Guide
+
 ######A Flask
-#_____________________________
+
 #### I: Description of Project
+
 ####A: Functionality
+
 TODO: Description
+
 ####B: Architecture
+
 TODO: Desciption
+
 ####D: Tech Stack
+
 TODO: Desciption
+
 ####D: Datasets
+
 ######Relational 
+
 https://www.imdb.com/interfaces/ 
 
 https://www.kaggle.com/stefanoleone992/imdb-extensive-dataset?select=IMDb+movies.csv 
@@ -69,7 +86,6 @@ https://flask-sqlalchemy.palletsprojects.com/en/2.x/
 
 $ cd moviebuff
 
-*Once-only install unless configurations change*
 $ pip install -e .
 
 $ export FLASK_APP=flaskr
