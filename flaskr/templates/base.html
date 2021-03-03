@@ -1,12 +1,216 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>{% block title %}{% endblock %}</title>
-    </head>
-    <body>  
-        {% block content %}
-        <h2><center>-------------------Some kind of banner should probably go right here----------------</center></h2>
-        {% endblock %}
-        <img src= {{ url_for('static', filename='images/Ridiculous_Banner.jpg') }}>
-    </body>
-</html> 
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" type="text/css"/>
+
+
+    <title>MovieBuff</title>
+    <link rel = "icon" href =
+            "../static/images/MB.svg"
+          type = "image/x-icon">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body style="background-color:black;color:silver">
+<div class="topnav">
+    <a class="active" href="base.html" style="font-family: papyrus;font-size:25px">MovieBuff</a>
+    <a href="#about" style="font-family: papyrus;font-size:25px">Login</a>
+    <input type="text" placeholder="Search..">
+</div>
+<br>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            <div class="dropdown">
+                <div class="btn-group">
+                    <select id="multiselect2" multiple="multiple">
+                        <option value="1">Netflix</option>
+                        <option value="2">Amazon Prime</option>
+                        <option value="3">Hulu</option>
+                        <option value="4">HBO</option>
+                    </select>
+                    <script type="text/javascript">
+                            $(document).ready(function() {
+                                $('#multiselect2').multiselect({
+                                    includeSelectAllOption: true,
+                                    buttonWidth: '400px',
+                                    nonSelectedText: 'Streaming Services',
+                                    nSelectedText: 'Streaming Services',
+                                    buttonWidth: '100%'
+                                });
+                            });
+                     </script>
+                </div>
+                <div class="btn-group">
+                    <select id="multiselect3" multiple="multiple">
+                        <option value="1">English</option>
+                        <option value="2">Spanish</option>
+                        <option value="3">German</option>
+                        <option value="4">Italian</option>
+                        <option value="5">French</option>
+                        <option value="6">Russian</option>
+                        <option value="7">Danish</option>
+                        <option value="8">Swedish</option>
+                        <option value="9">Japanese</option>
+                        <option value="10">Hindi</option>
+                        <option value="11">Mandarin</option>
+                        <option value="12">Arabic</option>
+                        <option value="13">Korean</option>
+                        <option value="14">Hebrew</option>
+                        <option value="15">Cantonese</option>
+                        <option value="16">Portugese</option>
+                        <option value="17">Latin</option>
+                        <option value="18">Ukrainian</option>
+                        <option value="19">Other</option>
+                    </select>
+                    <script type="text/javascript">
+                            $(document).ready(function() {
+                                $('#multiselect3').multiselect({
+                                    includeSelectAllOption: true,
+                                    buttonWidth: '400px',
+                                    nonSelectedText: 'Languages',
+                                    nSelectedText: 'Languages',
+                                    buttonWidth: '100%'
+                                });
+                            });
+                     </script>
+                </div>
+                <div class="btn-group">
+                    <script type="text/javascript">
+                            $(document).ready(function() {
+                                $('#multiselect').multiselect({
+                                    includeSelectAllOption: true,
+                                    buttonWidth: '400px',
+                                    nonSelectedText: 'Genres',
+                                    nSelectedText: 'Genres',
+                                    buttonWidth: '100%'
+                                });
+                            });
+                    </script>
+                    <select id="multiselect" multiple="multiple">
+                        <option value="1">Action</option>
+                        <option value="2">Adventure</option>
+                        <option value="3">Animation</option>
+                        <option value="4">Biography</option>
+                        <option value="5">Comedy</option>
+                        <option value="6">Crime</option>
+                        <option value="7">Drama</option>
+                        <option value="8">Fantasy</option>
+                        <option value="9">History</option>
+                        <option value="10">Horror</option>
+                        <option value="11">Musical</option>
+                        <option value="12">Mystery</option>
+                        <option value="13">Romance</option>
+                        <option value="14">Sci-Fi</option>
+                        <option value="15">Thriller</option>
+                        <option value="16">War</option>
+                        <option value="17">Western</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        Year
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item">
+                                <script>
+  $( function() {
+    $( "#slider-range-year" ).slider({
+      range: true,
+      min: 1900,
+      max: 2021,
+      values: [ 1900,  2021 ],
+      slide: function( event, ui ) {
+        $( "#amountYear" ).val(ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+      }
+    });
+    $( "#amountYear" ).val($( "#slider-range-year" ).slider( "values", 0 ) +
+      " - " + $( "#slider-range-year" ).slider( "values", 1 ) );
+  } );
+                                </script>
+                            <label for="amountYear"></label>
+                            <input type="text" id="amountYear" readonly style="border:0; color:blue; font-weight:bold;">
+                            <div id="slider-range-year"></div>
+                        </a>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        Rating
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item">
+                                <script>
+  $( function() {
+    $( "#slider-range" ).slider({
+      range: true,
+      min: 0,
+      max: 10,
+      values: [ 0, 10 ],
+      slide: function( event, ui ) {
+        $( "#amount" ).val(ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+      }
+    });
+    $( "#amount" ).val($( "#slider-range" ).slider( "values", 0 ) +
+      " - " + $( "#slider-range" ).slider( "values", 1 ) );
+  } );
+    $( function() {
+    $( "#slider-range2" ).slider({
+      range: true,
+      min: 0,
+      max: 100,
+      values: [ 0, 100 ],
+      slide: function( event, ui ) {
+        $( "#amount2" ).val(ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+      }
+    });
+    $( "#amount2" ).val($( "#slider-range2" ).slider( "values", 0 ) +
+      " - " + $( "#slider-range2" ).slider( "values", 1 ) );
+  } );
+                                </script>
+                            <label for="amount">IMDb:</label>
+                            <input type="text" id="amount" readonly style="border:0; color:blue; font-weight:bold;">
+                            <div id="slider-range"></div>
+                            <label for="amount2">Rotten Tomatoes:</label>
+                            <input type="text" id="amount2" readonly style="border:0; color:blue; font-weight:bold;">
+                            <div id="slider-range2"></div>
+                        </a>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        Sort by
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item active" href="#">Rating</a>
+                        <a class="dropdown-item" href="#">Title</a>
+                        <a class="dropdown-item" href="#">Date</a>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" style="background-color:#fff; color:#0069d9">
+                        Go
+                    </button>
+                </div>
+
+           </div>
+    </div>
+</div>
+</div>
+
+
+
+
+
+
+</body>
+</html>
