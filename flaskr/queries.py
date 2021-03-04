@@ -9,8 +9,8 @@ from flaskr.models import TitleBasics
 
 def title_name(s: str):
     #TODO Error handling
-    records = TitleBasics.query.filter_by(primaryTitle=s)
-    id_ = records.titleID
+    records = TitleBasics.query.filter_by(primaryTitle=s).first()
+    #id_ = records.titleID
     title = records.primaryTitle
     year = records.startYear
     runtime = records.runtimeMinutes
