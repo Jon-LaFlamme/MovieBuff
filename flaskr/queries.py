@@ -7,18 +7,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flaskr.models import TitleBasics
 
 
-def title_name(s: str):
-    #TODO Error handling
-    records = TitleBasics.query.filter_by(primaryTitle=s).first()
-    #id_ = records.titleID
-    title = records.primaryTitle
-    year = records.startYear
-    runtime = records.runtimeMinutes
-    genres = records.genres
-    if records:
-        return f'title: {title}, released: {year}, runtime: {runtime}, genres: {genres}'
-    else:
-        return 'No record(s) found by that title'
+def title_name_query(s: str):
+    return f'title: {title}, released: {year}, runtime: {runtime}, genres: {genres}'
+
 
 def title_id(s: str):
     #TODO Complete function
