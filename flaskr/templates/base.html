@@ -24,7 +24,16 @@
 <div class="topnav">
     <a class="active" href="base.html" style="font-family: papyrus;font-size:25px">MovieBuff</a>
     <a href="#about" style="font-family: papyrus;font-size:25px">Login</a>
-    <input type="text" placeholder="Search..">
+    <form method="POST" action="{{ url_for('search') }}">
+        <center>
+          <fieldset class="form-field">
+            {{ form.csrf_token }}
+            {{ form.title.label }}
+            {{ form.title(size=20) }}
+          </fieldset>
+          {{ form.submit }}
+          </center>
+      </form>
 </div>
 <br>
 <div class="container">
