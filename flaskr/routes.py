@@ -8,9 +8,15 @@ from flaskr import app
 db = MoviebuffDB()
 
 
-@app.route('/')
+@app.route('/', methods=['GET','POST'])
 def home():
-    return render_template('base.html')
+    if request.method == 'GET':
+        return render_template('base.html')
+    else:
+        query = request.form.get('Title')
+        res = db.query_basic(query)
+        return json2html.convert(json = res)
+        
 
 
 @app.route('/search', methods=['GET','POST'])

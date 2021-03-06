@@ -17,23 +17,18 @@
     <link rel = "icon" href =
             "../static/images/MB.svg"
           type = "image/x-icon">
-    <link rel="stylesheet" href="static/MovieBuffStyle.css">
+    <link rel="stylesheet" href="style.css">
 
 </head>
 <body style="background-color:black;color:silver">
 <div class="topnav">
     <a class="active" href="base.html" style="font-family: papyrus;font-size:25px">MovieBuff</a>
     <a href="#about" style="font-family: papyrus;font-size:25px">Login</a>
-    <form method="POST" action="{{ url_for('search') }}">
-        <center>
-          <fieldset class="form-field">
-            {{ form.csrf_token }}
-            {{ form.title.label }}
-            {{ form.title(size=20) }}
-          </fieldset>
-          {{ form.submit }}
-          </center>
-      </form>
+    <form action="{{ url_for('home') }}" method="POST">
+        <input type="text" name="Title">
+        <input type="submit">
+    </form>
+    <!-- <input type="text" placeholder="Search.."> -->
 </div>
 <br>
 <div class="container">
@@ -215,5 +210,11 @@
     </div>
 </div>
 </div>
+
+
+
+
+
+
 </body>
 </html>
