@@ -2,19 +2,19 @@
 
 
 {% block content %}
-
     <div class="form-wrapper">
+        <center>
       <h2 class="title">Search by Title</h2>
-
+      </center>
       <form method="POST" action="{{ url_for('search') }}">
-
+        <center>
           <fieldset class="form-field">
-              {{ form.title.label }}
-              {{ form.title(size=20) }}
+            {{ form.csrf_token }}
+            {{ form.title.label }}
+            {{ form.title(size=20) }}
           </fieldset>
-
           {{ form.submit }}
-
+          </center>
       </form>
     </div>
 
