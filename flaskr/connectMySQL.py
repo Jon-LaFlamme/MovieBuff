@@ -4,6 +4,7 @@ connection = mysql.connector.connect(user='moviebuff@moviebuff', password='CS411
 cursor = connection.cursor()
 
 title = raw_input("Title: ")
+#title  = 'Speed'
 query = ("SELECT imdb_title_id, year, genre from imdblist WHERE title='{}'").format(title)
 print(query)
 #title=input("Enter title: ")

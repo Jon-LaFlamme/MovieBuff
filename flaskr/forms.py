@@ -1,19 +1,14 @@
 """Form object declaration."""
-#Adapted from https://hackersandslackers.com/flask-wtforms-forms/
-#Docs: https://wtforms.readthedocs.io/en/2.3.x/
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextField, SubmitField
+from wtforms import StringField, TextField, SubmitField, IntegerField, FieldList, FormField
 from wtforms.validators import DataRequired, Optional
 
 
 
 class Title(FlaskForm):
     """Search by Title"""
-    title = StringField(
-        'Title',
-        [DataRequired()]
-    )
+    title = StringField('Title',[DataRequired()])
     submit = SubmitField('Submit')
 
 
