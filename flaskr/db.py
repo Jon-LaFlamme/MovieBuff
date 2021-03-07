@@ -28,7 +28,7 @@ class MoviebuffDB():
             return self.connect()
         return self.driver()
 
-    def query_basic(self, query: str):
+    def query_basic(self, query: str) -> dict:
         '''Quick Search: Target for Demo on Mar 14'''
         if not self.driver:
             self.connect()
@@ -40,12 +40,13 @@ class MoviebuffDB():
         return res
 
 
-    def query_omnibus(self, field_args: dict):
-        '''Idea: take in a single dictionary of query & filter params,
-           & perform the correct sql query
-        '''
+    def query_enhanced(self, form: object) -> dict:
+        '''Expected html form with year, rating, sortby, genre, lang, stream'''
         if not self.driver:
             self.connect()
-
-        return dict
-        
+        res = {"Not yet implemented": 0}
+        with self.driver.cursor() as c:
+            sql,values = sqls.query_enhanced(form)
+            c.execute(sql, values)
+            res = c.fetchall()           
+        return res
