@@ -4,7 +4,6 @@ title_name = "SELECT * FROM imdblist WHERE title = %s"
 
 title_year_name = 'SELECT imdb_title_id, year, genre from imdblist WHERE Title=%s AND year IN (%s..%s)'
 
-<<<<<<< HEAD
 
 
 def query_enhanced(form: object) -> tuple:
@@ -49,7 +48,6 @@ def query_enhanced(form: object) -> tuple:
         values.extend(sort_by)
 
     return (sqls, tuple(values))
-=======
 filter_search_rating = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by avg_vote desc"
 
 filter_search_date = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by year desc"
@@ -73,4 +71,3 @@ filter_search_rating_language_genre = "select title, year, genre, language, avg_
 filter_search_date_language_genre = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} and genre in {} order by year desc"
 
 filter_search_title_language_genre = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} and genre in {} order by title"
->>>>>>> 204482bd31707a79b964abb1c37e79fe7d30fef5
