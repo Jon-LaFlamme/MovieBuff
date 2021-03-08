@@ -5,6 +5,7 @@ from flaskr.forms import Title
 from flaskr.db import MoviebuffDB
 from flaskr import validate as validate
 from flaskr import app
+from flaskr import sqls as sqls
 
 db = MoviebuffDB()
 
@@ -21,6 +22,7 @@ def home():
         else:
             return "ERROR: Invalid query. Please try again without quotes or escape characters"
         
+
 @app.route('/process', methods=['GET','POST'])
 def process():
     query = []
@@ -77,14 +79,17 @@ def process():
             res = db.filter_query_title(query)
         return json2html.convert(json=res)
 
+
 @app.route('/search', methods=['GET','POST'])
 def search():
     if request.method == 'GET':
-        return render_template('base.html') #TODO Change to html file with enhanced filter/search form
+        return render_template('base2.html')
     else:
-        #TODO Validate form @ validate.py
-        res = db.query_enhanced(request.form)
-        return json2html.convert(json = res)
+        #sql,values = sqls.query_enhanced(request.json)  #Uncomment this,next line to test SQL String and Values  
+        #return json2html.convert(json = {sql:values})
+        res = db.query_enhanced(request.json)  
+        return json2html.convert(json = res)    
+        
 
 
 @app.route('/update', methods=['GET','POST'])
