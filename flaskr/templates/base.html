@@ -22,8 +22,12 @@
 </head>
 <body style="background-color:black;color:silver">
 <div class="topnav">
-    <a class="active" href="base.html" style="font-family: papyrus;font-size:25px">MovieBuff</a>
-    <a href="#about" style="font-family: papyrus;font-size:25px">Login</a>
+    <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
+    {%if not loggedIn %}
+    <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
+    {%else %}
+    <a href="{{ url_for('logout') }}" style="font-family: papyrus;font-size:25px">Log out</a>
+    {%endif%}
     <form action="{{ url_for('home') }}" method="POST">
         <input type="text" name="Title" placeholder="Search..">
     </form>
@@ -39,9 +43,9 @@
                 <div class="btn-group">
                     <select id="multiselect2" multiple="multiple">
                         <option value="1">Netflix</option>
-                        <option value="2">Amazon Prime</option>
+                        <option value="2">Prime Video</option>
                         <option value="3">Hulu</option>
-                        <option value="4">HBO</option>
+                        <option value="4">Disney+</option>
                     </select>
                     <script type="text/javascript">
                             $(document).ready(function() {
@@ -234,26 +238,10 @@
                                     $( "#amount" ).val($( "#slider-range" ).slider( "values", 0 ) +
                                       " - " + $( "#slider-range" ).slider( "values", 1 ) );
                                   } );
-                                    $( function() {
-                                    $( "#slider-range2" ).slider({
-                                      range: true,
-                                      min: 0,
-                                      max: 100,
-                                      values: [ 0, 100 ],
-                                      slide: function( event, ui ) {
-                                        $( "#amount2" ).val(ui.values[ 0 ] + " - " + ui.values[ 1 ] );
-                                      }
-                                    });
-                                    $( "#amount2" ).val($( "#slider-range2" ).slider( "values", 0 ) +
-                                      " - " + $( "#slider-range2" ).slider( "values", 1 ) );
-                                  } );
                                 </script>
                             <label for="amount">IMDb:</label>
                             <input type="text" id="amount" readonly style="border:0; color:blue; font-weight:bold;">
                             <div id="slider-range"></div>
-                            <label for="amount2">Rotten Tomatoes:</label>
-                            <input type="text" id="amount2" readonly style="border:0; color:blue; font-weight:bold;">
-                            <div id="slider-range2"></div>
                         </a>
                     </div>
                 </div>
@@ -321,7 +309,6 @@
                         'genres' : selectedGenres
                         }
 
-                        console.log(JSON.stringify(movies));
                         $.ajax({
                             url: Flask.url_for('process'),
                             type: 'POST',
@@ -329,7 +316,7 @@
                             contentType: 'application/json; charset=utf-8',
                             dataType: 'json'
                         }).done(function(result){
-                                document.getElementById("txtHint").innerHTML = result;
+                               document.getElementById("txtHint").innerHTML = result;
                             })
                             .fail(function(xhr, status, error){
                                 document.getElementById("txtHint").innerHTML = xhr.responseText;
