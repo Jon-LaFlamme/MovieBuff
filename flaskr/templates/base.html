@@ -269,19 +269,17 @@
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary" onclick="showResults(
                     document.getElementById('amountYear').value, document.getElementById('amount').value,
-                    document.getElementById('amount2').value,
                     document.getElementById('sortSelection'))" style="background-color:#fff; color:#0069d9">
                         Go
                     </button>
                 </div>
                 <script>
-                    function showResults(yearRange, imdbRange, rottenRange, sort) {
+                    function showResults(yearRange, imdbRange, sort) {
                         var sortingMethod, year, imdb,rotten;
                         sortingMethod = sort.getElementsByClassName("dropdown-item active")[0].innerHTML;
                         var realSortingMethod;
                         year = yearRange.split(" - ");
                         imdb = imdbRange.split(" - ");
-                        rotten = rottenRange.split(" - ");
 
                         if (sortingMethod == 'Rating')
                         {
@@ -302,8 +300,6 @@
                         'languages' : selectedLanguages,
                         'imdbStart' : imdb[0],
                         'imdbEnd' : imdb[1],
-                    //    'rottenStart' : rotten[0],
-                    //    'rottendEnd' : rotten[1],
                         'sorting' : realSortingMethod,
                     //    'streaming' : selectedServices,
                         'genres' : selectedGenres
