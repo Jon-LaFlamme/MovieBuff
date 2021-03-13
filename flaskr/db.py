@@ -10,7 +10,10 @@ class MoviebuffDB():
     
     def init_app(self, app):
         self.app = app
-        self.connect()
+
+    def close_connection(self):
+        self.driver.close()
+        self.driver = None
 
     def connect(self):
         self.driver = pymysql.connect(user='moviebuff@moviebuff',\
@@ -21,23 +24,16 @@ class MoviebuffDB():
                                 charset='utf8mb4',\
                                 autocommit=True,\
                                 cursorclass=pymysql.cursors.DictCursor)
-        #return self.driver
 
-
-    def get_db(self):
-        if not self.driver:
-            return self.connect()
-        return self.driver()
-
-    def query_basic(self, query: str):
+    def query_basic(self, query: str) -> dict:
         '''Quick Search: Target for Demo on Mar 14'''
-        if not self.driver:
-            self.connect()
+        self.connect()
         sql = sqls.title_name
         res = {"Query result": 0}
         with self.driver.cursor() as c:
             c.execute(sql, query)
-            res = c.fetchone()           
+            res = c.fetchone()
+        self.close_connection()
         return res
 
     def query_id(self, query: str):
@@ -52,38 +48,37 @@ class MoviebuffDB():
         return res
 
     def filter_query(self, query: str):
-        if not self.driver:
-            self.connect()
+        self.connect()
         sql = sqls.filter_search_rating
         res = {"Query result": 0}
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def filter_query_date(self, query: str):
-        if not self.driver:
-            self.connect()
+        self.connect()
         sql = sqls.filter_search_date
         res = {"Query result": 0}
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def filter_query_title(self, query: str):
-        if not self.driver:
-            self.connect()
+        self.connect()
         sql = sqls.filter_search_title
         res = {"Query result": 0}
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def filter_query_language(self, query: str, language):
-        if not self.driver:
-            self.connect()
+        self.connect()
         if(len(language) == 1):
             language.append("asdfasdf")
         sql = sqls.filter_search_rating_language.format(tuple(language))
@@ -91,11 +86,11 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def filter_query_date_language(self, query: str, language):
-        if not self.driver:
-            self.connect()
+        self.connect()
         if(len(language) == 1):
             language.append("asdfasdf")
         sql = sqls.filter_search_date_language.format(tuple(language))
@@ -103,11 +98,11 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def filter_query_title_language(self, query: str, language):
-        if not self.driver:
-            self.connect()
+        self.connect()
         if(len(language) == 1):
             language.append("asdfasdf")
         sql = sqls.filter_search_title_language.format(tuple(language))
@@ -115,11 +110,11 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def filter_query_genre(self, query: str, genres):
-        if not self.driver:
-            self.connect()
+        self.connect()
         if(len(genres) == 1):
             genres.append("asdfasdf")
         sql = sqls.filter_search_rating_genre.format(tuple(genres))
@@ -127,11 +122,11 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def filter_query_date_genre(self, query: str, genres):
-        if not self.driver:
-            self.connect()
+        self.connect()
         if(len(genres) == 1):
             genres.append("asdfasdf")
         sql = sqls.filter_search_date_genre.format(tuple(genres))
@@ -139,11 +134,11 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def filter_query_title_genre(self, query: str, genres):
-        if not self.driver:
-            self.connect()
+        self.connect()
         if(len(genres) == 1):
             genres.append("asdfasdf")
         sql = sqls.filter_search_title_genre.format(tuple(genres))
@@ -151,11 +146,11 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def filter_query_language_genre(self, query: str, languages, genres):
-        if not self.driver:
-            self.connect()
+        self.connect()
         if(len(genres) == 1):
             genres.append("asdfasdf")
         if(len(languages) == 1):
@@ -165,11 +160,11 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def filter_query_date_language_genre(self, query: str, languages, genres):
-        if not self.driver:
-            self.connect()
+        self.connect()
         if(len(genres) == 1):
             genres.append("asdfasdf")
         if(len(languages) == 1):
@@ -179,11 +174,11 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def filter_query_title_language_genre(self, query: str, languages, genres):
-        if not self.driver:
-            self.connect()
+        self.connect()
         if(len(genres) == 1):
             genres.append("asdfasdf")
         if(len(languages) == 1):
@@ -193,6 +188,17 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
+        return res
+
+    def query_enhanced(self, form: dict) -> dict:
+        self.connect()
+        res = {"Not yet implemented": 0}
+        with self.driver.cursor() as c:
+            sql,values = sqls.query_enhanced(form)
+            c.execute(sql, values)
+            res = c.fetchall()  
+        self.close_connection()         
         return res
 
     def login(self, userInfo):
@@ -219,11 +225,31 @@ class MoviebuffDB():
                 return False
         return True
 
-    def query_omnibus(self, field_args: dict):
-        '''Idea: take in a single dictionary of query & filter params,
-           & perform the correct sql query
-        '''
-        if not self.driver:
-            self.connect()
-        return dict
-        
+    def delete_record(self, s: str) -> dict:
+        self.connect()
+        k = -1
+        with self.driver.cursor() as c:
+            sql = sqls.delete_by_id(s)
+            num = c.execute(sql, s) 
+        self.close_connection()       
+        return {"Number of records deleted from imdb": k}
+
+
+    def create_record(self, s: str) -> dict:
+        self.connect()
+        k = -1
+        with self.driver.cursor() as c:
+            sql = sqls.insert_by_id(s)
+            num = c.execute(sql, s) 
+        self.close_connection()       
+        return {"Number of records deleted from imdb": k}
+
+
+    def update_record(self, s: str) -> dict:
+        self.connect()
+        k = -1
+        with self.driver.cursor() as c:
+            sql = sqls.delete_by_id(s)
+            num = c.execute(sql, s) 
+        self.close_connection()       
+        return {"Number of records deleted from imdb": k}
