@@ -1,8 +1,19 @@
-{% extends 'base.html' %}
-{% block title %} Name and Location Form {% endblock %}
-{% block content %}
-{{super()}}
-        <h1>Query Results:</h1>
-
-        <h1>&nbsp</h1>
-{% endblock %}
+<table border="1">
+    <thead>
+    <tr><th>Title</th><th>Year</th><th>Genre</th><th>Language</th><th>Rating</th></tr>
+    </thead>
+    <tbody>
+    {% for i in results %}
+    <tr><td>
+        <a href="{{url_for('movie', moviename=i['imdb_title_id'])}}">
+            {{i['title']}}
+        </a>
+        </td>
+        <td>{{i['year']}}</td>
+        <td>{{i['genre']}}</td>
+        <td>{{i['language']}}</td>
+        <td>{{i['avg_vote']}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>

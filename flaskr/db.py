@@ -1,5 +1,7 @@
 import pymysql
 from flaskr import sqls as sqls
+import hashlib, uuid
+import sys
 
 class MoviebuffDB():
     def __init__(self):
@@ -32,6 +34,61 @@ class MoviebuffDB():
             c.execute(sql, query)
             res = c.fetchone()
         self.close_connection()
+        return res
+
+    def query_id(self, query: str):
+        '''Quick Search: Target for Demo on Mar 14'''
+        if not self.driver:
+            self.connect()
+        sql = sqls.imdb_id
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchone()
+        return res
+
+    def query_nmData(self, query: str):
+        '''Quick Search: Target for Demo on Mar 14'''
+        if not self.driver:
+            self.connect()
+        sql = sqls.nameData
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        return res
+
+    def query_movieName(self, query: str):
+        '''Quick Search: Target for Demo on Mar 14'''
+        if not self.driver:
+            self.connect()
+        sql = sqls.movieById
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchone()
+        return res
+
+    def query_nm(self, query: str):
+        '''Quick Search: Target for Demo on Mar 14'''
+        if not self.driver:
+            self.connect()
+        sql = sqls.name
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        return res
+
+    def query_rName(self, query: str):
+        '''Quick Search: Target for Demo on Mar 14'''
+        if not self.driver:
+            self.connect()
+        sql = sqls.realName
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
         return res
 
     def filter_query(self, query: str):
@@ -178,7 +235,6 @@ class MoviebuffDB():
         self.close_connection()
         return res
 
-
     def query_enhanced(self, form: dict) -> dict:
         self.connect()
         res = {"Not yet implemented": 0}
@@ -189,6 +245,29 @@ class MoviebuffDB():
         self.close_connection()         
         return res
 
+    def login(self, userInfo):
+        if not self.driver:
+            self.connect()
+        sql = sqls.login
+        with self.driver.cursor() as c:
+            c.execute(sql, (userInfo[0], hashlib.md5(userInfo[1].encode()).hexdigest()))
+            res = c.fetchone()
+            if(res['COUNT(*)'] >= 1):
+                return True
+            else:
+                return False
+
+    def addUser(self, userInfo):
+        if not self.driver:
+            self.connect()
+        sql = sqls.add_user
+        with self.driver.cursor() as c:
+            try:
+                c.execute(sql, (userInfo[0], userInfo[1], hashlib.md5(userInfo[2].encode()).hexdigest()))
+                self.driver.commit()
+            except:
+                return False
+        return True
 
     def delete_record(self, s: str) -> dict:
         self.connect()

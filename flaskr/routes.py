@@ -1,27 +1,52 @@
-from flask import Flask, request, redirect, render_template, g, url_for
+from flask import Flask, request, redirect, render_template, g, url_for, session
 import wtforms_jsonschema2
 from json2html import *
 from flaskr.forms import Title
 from flaskr.db import MoviebuffDB
 from flaskr import validate as validate
 from flaskr import app
+import json
 from flaskr import sqls as sqls
 
 db = MoviebuffDB()
 
-
 @app.route('/', methods=['GET','POST'])  #Basic Title Search/Home Page
 def home():
     if request.method == 'GET':
-        return render_template('base.html') 
+        return render_template('base.html')
     else:
         query = request.form.get('Title')
         if validate.valid_title(query):
             res = db.query_basic(query)
-            return json2html.convert(json = res)
+            return json2html.convert(json=res)
         else:
             return "ERROR: Invalid query. Please try again without quotes or escape characters"
-        
+
+@app.route('/Login', methods=['GET','POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html', failedLogin = False)
+    if request.method == 'POST':
+        if db.login([request.form.get('User'),request.form.get('Password')]):
+            session['login'] = True
+            return render_template('base.html')
+        else:
+            return render_template('login.html', failedLogin = True)
+
+@app.route('/SignUp', methods=['GET','POST'])
+def newUser():
+    if request.method == 'POST':
+        if db.addUser([request.form.get('User'), request.form.get('Email'), request.form.get('Password')]):
+            return render_template('signup.html', success=0)
+        else:
+            return render_template('signup.html', success=-1)
+    else:
+        return render_template('signup.html', success=1)
+
+@app.route('/Logout')
+def logout():
+    session['login'] = False
+    return render_template('base.html')
 
 @app.route('/process', methods=['GET','POST'])
 def process():
@@ -31,9 +56,6 @@ def process():
     query.append(int(request.json['yearEnd']))
     query.append(int(request.json['imdbStart']))
     query.append(int(request.json['imdbEnd']))
-
-    print(request.json['languages'], file=sys.stderr)
-    print(request.json['genres'], file=sys.stderr)
 
     Languages = [item for sublist in request.json['languages'] for item in sublist]
     Genres = [item for sublist in request.json['genres'] for item in sublist]
@@ -55,7 +77,7 @@ def process():
             res = db.filter_query_genre(query, Genres)
         else:
             res = db.filter_query(query)
-        return json2html.convert(json=res)
+        return render_template('results.html', results = res)
     elif(request.json['sorting'] == 'year'):
         if(addLanguages and addGenres):
             res = db.filter_query_date_language_genre(query, Languages,
@@ -66,7 +88,7 @@ def process():
             res = db.filter_query_date_genre(query, Genres)
         else:
             res = db.filter_query_date(query)
-        return json2html.convert(json=res)
+        return render_template('results.html', results = res)
     else:
         if(addLanguages and addGenres):
             res = db.filter_query_title_language_genre(query, Languages,
@@ -77,7 +99,7 @@ def process():
             res = db.filter_query_title_genre(query, Genres)
         else:
             res = db.filter_query_title(query)
-        return json2html.convert(json=res)
+        return render_template('results.html', results = res)
 
 
 @app.route('/search', methods=['GET','POST'])
@@ -90,6 +112,34 @@ def search():
         res = db.query_enhanced(request.json)  
         return json2html.convert(json = res)    
         
+    return render_template("basic-title-search.jinja2", form=form,\
+                          template="form-template")
+
+@app.route('/<moviename>')
+def movie(moviename):
+    dbRes = db.query_id(str(moviename))
+    if(dbRes):
+        remove = []
+        for i in dbRes.keys():
+            if dbRes[i] == '':
+                remove.append(i)
+        for i in remove:
+            del dbRes[i]
+        nmRes = db.query_nm(str(moviename))
+        names = dict()
+        for i in nmRes:
+            names[i['imdb_title_id']] = db.query_rName(str(i['imdb_title_id']))[0]['name']
+    return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names)
+
+@app.route('/_<personname>')
+def person(personname):
+    dbRes = db.query_nmData(str(personname))
+    titleRes = dict()
+    for i in dbRes:
+        titleRes[i['imdb_name']] = db.query_movieName(i['imdb_name'])
+    # print(dbRes, file=sys.stderr)
+    # print(titleRes, file=sys.stderr)
+    return render_template('person.html', dbRes = dbRes, titleRes = titleRes)
 
 @app.route('/update', methods=['GET','POST'])
 def update():
