@@ -143,33 +143,41 @@ def query_enhanced(form: dict) -> tuple:
 
 filter_search_rating = "select imdb_title_id, title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by avg_vote desc"
 
-filter_search_date = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by year desc"
+filter_search_date = "select imdb_title_id, title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by year desc"
 
-filter_search_title = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by title"
+filter_search_title = "select imdb_title_id,title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by title"
 
-filter_search_rating_language = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} order by avg_vote desc"
+filter_search_rating_language = "select imdb_title_id,title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} order by avg_vote desc"
 
-filter_search_date_language = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} order by year desc"
+filter_search_date_language = "select imdb_title_id,title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} order by year desc"
 
-filter_search_title_language = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} order by title"
+filter_search_title_language = "select imdb_title_id,title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} order by title"
 
-filter_search_rating_genre = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and genre in {} order by avg_vote desc"
+filter_search_rating_genre = "select imdb_title_id,title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and genre in {} order by avg_vote desc"
 
-filter_search_date_genre = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and genre in {} order by year desc"
+filter_search_date_genre = "select imdb_title_id,title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and genre in {} order by year desc"
 
-filter_search_title_genre = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and genre in {} order by title"
+filter_search_title_genre = "select imdb_title_id,title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and genre in {} order by title"
 
-filter_search_rating_language_genre = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} and genre in {} order by avg_vote desc"
+filter_search_rating_language_genre = "select imdb_title_id,title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} and genre in {} order by avg_vote desc"
 
-filter_search_date_language_genre = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} and genre in {} order by year desc"
+filter_search_date_language_genre = "select imdb_title_id,title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} and genre in {} order by year desc"
 
-filter_search_title_language_genre = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} and genre in {} order by title"
+filter_search_title_language_genre = "select imdb_title_id,title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s and language in {} and genre in {} order by title"
 
 imdb_id = "SELECT * FROM imdblist WHERE imdb_title_id = %s"
 
 add_user = "INSERT INTO user (UserName, EmailAddress, Password) values (%s, %s, %s)"
 
 login = "SELECT COUNT(*) FROM user WHERE UserName = %s AND Password = %s"
+
+name = "SELECT imdb_title_id, category FROM imdbprincipals WHERE imdb_name = %s"
+
+realName = "SELECT name FROM imdbnames WHERE imdb_name = %s"
+
+nameData = "SELECT imdb_name, category FROM imdbprincipals WHERE imdb_title_id = %s order by category"
+
+movieById = "SELECT title, year from imdblist where imdb_title_id = %s"
 
 
 

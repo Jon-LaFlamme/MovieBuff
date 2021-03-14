@@ -77,7 +77,6 @@ def process():
             res = db.filter_query_genre(query, Genres)
         else:
             res = db.filter_query(query)
-        print(res)
         return render_template('results.html', results = res)
     elif(request.json['sorting'] == 'year'):
         if(addLanguages and addGenres):
@@ -89,7 +88,7 @@ def process():
             res = db.filter_query_date_genre(query, Genres)
         else:
             res = db.filter_query_date(query)
-        return json2html.convert(json=res)
+        return render_template('results.html', results = res)
     else:
         if(addLanguages and addGenres):
             res = db.filter_query_title_language_genre(query, Languages,
@@ -100,7 +99,7 @@ def process():
             res = db.filter_query_title_genre(query, Genres)
         else:
             res = db.filter_query_title(query)
-        return json2html.convert(json=res)
+        return render_template('results.html', results = res)
 
 
 @app.route('/search', methods=['GET','POST'])
@@ -126,21 +125,21 @@ def movie(moviename):
                 remove.append(i)
         for i in remove:
             del dbRes[i]
-    return render_template('movie.html', res = json2html.convert(json=dbRes))
+        nmRes = db.query_nm(str(moviename))
+        names = dict()
+        for i in nmRes:
+            names[i['imdb_title_id']] = db.query_rName(str(i['imdb_title_id']))[0]['name']
+    return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names)
 
-# @app.route('/people/<personname>')
-# def movie(personname):
-#     dbRes = db.query_id(str(personname))
-#     print(dbRes, file=sys.stderr)
-#     if(dbRes):
-#         remove = []
-#         for i in dbRes.keys():
-#             if dbRes[i] == '':
-#                 remove.append(i)
-#         for i in remove:
-#             del dbRes[i]
-#     return render_template('movie.html', title = "hello", res = json2html.convert(json=dbRes))
-
+@app.route('/_<personname>')
+def person(personname):
+    dbRes = db.query_nmData(str(personname))
+    titleRes = dict()
+    for i in dbRes:
+        titleRes[i['imdb_name']] = db.query_movieName(i['imdb_name'])
+    # print(dbRes, file=sys.stderr)
+    # print(titleRes, file=sys.stderr)
+    return render_template('person.html', dbRes = dbRes, titleRes = titleRes)
 
 
 @app.route('/update', methods=['GET','POST'])

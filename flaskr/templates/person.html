@@ -28,26 +28,21 @@
 <br>
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col text-center">
-            <script>
-            document.write({{res|tojson}});
-            </script>
-            <br><br>
-        </div>
-    </div>
-    <div class="row justify-content-center">
         <table border="1">
             <thead>
-            <tr><th>Cast & Crew</th><th>Position</th></tr>
+            <tr><th>Movie</th><th>Position</th><th>Year</th></tr>
             </thead>
             <tbody>
-            {% for i in nmRes %}
+            {% for i in dbRes %}
             <tr><td>
-                <a href="{{ url_for('person', personname=i['imdb_title_id'])  }}">
-                    {{names[i['imdb_title_id']]}}
+                <a href="{{url_for('movie', moviename=i['imdb_name'])}}">
+                    {{titleRes[i['imdb_name']]['title']}}
                 </a>
             </td>
                 <td>{{i['category']}}</td>
+                <td>
+                    {{titleRes[i['imdb_name']]['year']}}
+                </td>
             </tr>
             {%endfor%}
             </tbody>
@@ -58,3 +53,18 @@
 </div>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -47,6 +47,50 @@ class MoviebuffDB():
             res = c.fetchone()
         return res
 
+    def query_nmData(self, query: str):
+        '''Quick Search: Target for Demo on Mar 14'''
+        if not self.driver:
+            self.connect()
+        sql = sqls.nameData
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        return res
+
+    def query_movieName(self, query: str):
+        '''Quick Search: Target for Demo on Mar 14'''
+        if not self.driver:
+            self.connect()
+        sql = sqls.movieById
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchone()
+        return res
+
+    def query_nm(self, query: str):
+        '''Quick Search: Target for Demo on Mar 14'''
+        if not self.driver:
+            self.connect()
+        sql = sqls.name
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        return res
+
+    def query_rName(self, query: str):
+        '''Quick Search: Target for Demo on Mar 14'''
+        if not self.driver:
+            self.connect()
+        sql = sqls.realName
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        return res
+
     def filter_query(self, query: str):
         self.connect()
         sql = sqls.filter_search_rating
