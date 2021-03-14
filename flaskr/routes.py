@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, g, url_for
+from flask import Flask, request, redirect, render_template, g, url_for, session
 import wtforms_jsonschema2
 from json2html import *
 from flaskr.forms import Title
@@ -10,12 +10,10 @@ from flaskr import sqls as sqls
 
 db = MoviebuffDB()
 
-LoggedIn = False
-
 @app.route('/', methods=['GET','POST'])  #Basic Title Search/Home Page
 def home():
     if request.method == 'GET':
-        return render_template('base.html', loggedIn=LoggedIn)
+        return render_template('base.html')
     else:
         query = request.form.get('Title')
         if validate.valid_title(query):
@@ -30,8 +28,8 @@ def login():
         return render_template('login.html', failedLogin = False)
     if request.method == 'POST':
         if db.login([request.form.get('User'),request.form.get('Password')]):
-            LoggedIn = True
-            return render_template('base.html', loggedIn = LoggedIn)
+            session['login'] = True
+            return render_template('base.html')
         else:
             return render_template('login.html', failedLogin = True)
 
@@ -47,8 +45,8 @@ def newUser():
 
 @app.route('/Logout')
 def logout():
-    LoggedIn = False
-    return render_template('base.html', loggedIn=LoggedIn)
+    session['login'] = False
+    return render_template('base.html')
 
 @app.route('/process', methods=['GET','POST'])
 def process():
@@ -79,7 +77,8 @@ def process():
             res = db.filter_query_genre(query, Genres)
         else:
             res = db.filter_query(query)
-        return json2html.convert(json=res)
+        print(res)
+        return render_template('results.html', results = res)
     elif(request.json['sorting'] == 'year'):
         if(addLanguages and addGenres):
             res = db.filter_query_date_language_genre(query, Languages,
@@ -115,7 +114,7 @@ def search():
         return json2html.convert(json = res)    
         
     return render_template("basic-title-search.jinja2", form=form,\
-                          template="form-template", loggedIn = LoggedIn)
+                          template="form-template")
 
 @app.route('/<moviename>')
 def movie(moviename):
@@ -127,7 +126,7 @@ def movie(moviename):
                 remove.append(i)
         for i in remove:
             del dbRes[i]
-    return render_template('movie.html', res = json2html.convert(json=dbRes), loggedIn = LoggedIn)
+    return render_template('movie.html', res = json2html.convert(json=dbRes))
 
 # @app.route('/people/<personname>')
 # def movie(personname):

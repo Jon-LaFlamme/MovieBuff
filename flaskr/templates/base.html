@@ -23,7 +23,7 @@
 <body style="background-color:black;color:silver">
 <div class="topnav">
     <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
-    {%if not loggedIn %}
+    {%if not session['login'] %}
     <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
     {%else %}
     <a href="{{ url_for('logout') }}" style="font-family: papyrus;font-size:25px">Log out</a>
@@ -275,7 +275,7 @@
                 </div>
                 <script>
                     function showResults(yearRange, imdbRange, sort) {
-                        var sortingMethod, year, imdb,rotten;
+                        var sortingMethod, year, imdb;
                         sortingMethod = sort.getElementsByClassName("dropdown-item active")[0].innerHTML;
                         var realSortingMethod;
                         year = yearRange.split(" - ");
@@ -312,7 +312,7 @@
                             contentType: 'application/json; charset=utf-8',
                             dataType: 'json'
                         }).done(function(result){
-                               document.getElementById("txtHint").innerHTML = result;
+                                document.getElementById("txtHint").innerHTML = result;
                             })
                             .fail(function(xhr, status, error){
                                 document.getElementById("txtHint").innerHTML = xhr.responseText;

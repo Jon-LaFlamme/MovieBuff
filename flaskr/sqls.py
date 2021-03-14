@@ -2,8 +2,6 @@ title_name = "SELECT * FROM imdblist WHERE title = %s"
 
 title_year_name = 'SELECT imdb_title_id, year, genre from imdblist WHERE Title=%s AND year IN (%s..%s)'
 
-filter_search_rating = "select imdb_title_id, title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by avg_vote desc"
-
 delete_by_id = 'DELETE FROM imbdblist WHERE id=%s'
 
 
@@ -143,7 +141,7 @@ def query_enhanced(form: dict) -> tuple:
     return (sqls, tuple(values))
 
 
-filter_search_rating = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by avg_vote desc"
+filter_search_rating = "select imdb_title_id, title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by avg_vote desc"
 
 filter_search_date = "select title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by year desc"
 
