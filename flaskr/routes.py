@@ -91,13 +91,11 @@ def search():
         return json2html.convert(json = res)    
         
 
-
 @app.route('/update', methods=['GET','POST'])
 def update():
     if request.method == 'GET':
-        return render_template('base.html') #TODO Change to html file with update form
+        return render_template('base.html') #TODO html file required for update procedure
     else:
-        #TODO Validate form @ validate.py
         res = db.update_record(request.form)
         return json2html.convert(json = res)
 
@@ -105,9 +103,8 @@ def update():
 @app.route('/create', methods=['GET','POST'])
 def create():
     if request.method == 'GET':
-        return render_template('base.html')  #TODO Change to html file with create form
+        return render_template('base.html')  #TODO html file required insert procedure
     else:
-        #TODO Validate form @ validate.py
         res = db.create_record(request.form)
         return json2html.convert(json = res)
 
@@ -115,8 +112,7 @@ def create():
 @app.route('/delete', methods=['GET','POST'])
 def delete():
     if request.method == 'GET':
-        return render_template('base.html') #TODO Change to html file with delete form
+        return render_template('base.html') #TODO html file required for delete procedure
     else:
-        #TODO Validate form @ validate.py
         res = db.delete_record(request.form)
         return json2html.convert(json = res)
