@@ -1,2 +1,6 @@
 flask
-Flask-SQLAlchemy
+flask_jsglue
+flask_wtf
+pymysql
+wtforms_jsonschema2
+json2html
