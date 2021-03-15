@@ -3,12 +3,14 @@ import wtforms_jsonschema2
 from json2html import *
 from flaskr.forms import Title
 from flaskr.db import MoviebuffDB
-from flaskr import validate as validate
+from flaskr.cosmos import MoviebuffCosmos
+#from flaskr import validate as validate
 from flaskr import app
 import json
 from flaskr import sqls as sqls
 
 db = MoviebuffDB()
+cosmos_db = MoviebuffCosmos()
 
 @app.route('/', methods=['GET','POST'])  #Basic Title Search/Home Page
 def home():
@@ -102,18 +104,20 @@ def process():
         return render_template('results.html', results = res)
 
 
-@app.route('/search', methods=['GET','POST'])
+@app.route('/search', methods=['GET','POST'])   #Test Route for noSQL API
 def search():
     if request.method == 'GET':
-        return render_template('base2.html')
+        return render_template('base-test-nosql.html')
     else:
         #sql,values = sqls.query_enhanced(request.json)  #Uncomment this,next line to test SQL String and Values  
         #return json2html.convert(json = {sql:values})
-        res = db.query_enhanced(request.json)  
-        return json2html.convert(json = res)    
-        
-    return render_template("basic-title-search.jinja2", form=form,\
-                          template="form-template")
+        res = cosmos_db.query_enhanced(request.json)  
+        print(res, file=sys.stderr)
+        # print(titleRes, file=sys.stderr)
+        return render_template('results.html', results = res) 
+    res = {"error": "Test query not working"}   
+    return render_template('results.html', results = res)
+
 
 @app.route('/<moviename>')
 def movie(moviename):

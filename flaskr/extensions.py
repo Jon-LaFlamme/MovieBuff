@@ -2,8 +2,10 @@
 #https://stackoverflow.com/questions/55523299/best-practices-for-persistent-database-connections-in-python-when-using-flask
 
 from flaskr.db import MoviebuffDB
+from flaskr.cosmos import MoviebuffCosmos
 
 db = MoviebuffDB()
+cosmos_db = MoviebuffCosmos()
 
 
 
