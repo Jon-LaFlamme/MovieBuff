@@ -122,6 +122,7 @@ def search():
 @app.route('/<moviename>')
 def movie(moviename):
     dbRes = db.query_id(str(moviename))
+    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + str(moviename) + "​​​​​​​.jpg"
     if(dbRes):
         remove = []
         for i in dbRes.keys():
@@ -133,7 +134,7 @@ def movie(moviename):
         names = dict()
         for i in nmRes:
             names[i['imdb_title_id']] = db.query_rName(str(i['imdb_title_id']))[0]['name']
-    return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names)
+    return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names, imgurl = imgurl)
 
 @app.route('/_<personname>')
 def person(personname):
