@@ -122,7 +122,7 @@ def search():
 @app.route('/<moviename>')
 def movie(moviename):
     dbRes = db.query_id(str(moviename))
-    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + str(moviename) + "​​​​​​​.jpg"
+    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + str(moviename) + ".jpg"
     if(dbRes):
         remove = []
         for i in dbRes.keys():
