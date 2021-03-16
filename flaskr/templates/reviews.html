@@ -15,7 +15,7 @@
     <link rel = "icon" href =
             "../static/images/MB.svg"
           type = "image/x-icon">
-    <link rel="stylesheet" href="static/MovieBuffStyle.css">
+    <link rel="stylesheet" href="../static/MovieBuffStyle.css">
 
 </head>
 <body style="background-color:black;color:silver">
@@ -28,44 +28,42 @@
 <br>
 <div style="display:flex; flex-direction: row; justify-content: center;">
     <div style="text-align: center; vertical-align: top; flex-grow: 2;">
-        <p style=font-size:48px>{{ title }}<br></p>
+        <p style=font-size:48px>{{ title }} - Reviews<br></p>
         
         <p style=font-size:24px>PLACEHOLDER MovieBuff Score 4.5/5.0<br></p>
 
-        <a href="{{ url_for('reviews', moviename=titleId)}}">Reviews for {{ title }}</a>
+        <a href="{{ url_for('movie', moviename=titleId)}}">Back to {{ title }}</a>
     </div>
     <img src="{{ imgurl }}" alt="{{ imgurl }}" style="flex-grow:1; max-width: 300px; max-height: 500px;"> 
 </div>
-<br>
+
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col text-center">
-            <script>
-            document.write({{res|tojson}});
-            </script>
-            <br><br>
+    <div class="row; justify-content: center;" style="display:flex; flex-direction: row">
+        <div style="text-align: center; vertical-align: top; flex-grow: 2;justify-content: center">
+            <table border="1">
+                <thead>
+                <tr><th>Review Summary</th><th>Author</th><th>Score</th><th>Full Review</th></tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        PLACEHOLDER REVIEW
+                    </td>
+                    <td>
+                        test user
+                    </td>
+                    <td>
+                        4.5/5.0
+                    </td>
+                    <td>
+                        placeholder review text this was a good movie
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
-    <div class="row justify-content-center">
-        <table border="1">
-            <thead>
-            <tr><th>Cast & Crew</th><th>Position</th></tr>
-            </thead>
-            <tbody>
-            {% for i in nmRes %}
-            <tr><td>
-                <a href="{{ url_for('person', personname=i['imdb_title_id'])  }}">
-                    {{names[i['imdb_title_id']]}}
-                </a>
-            </td>
-                <td>{{i['category']}}</td>
-            </tr>
-            {%endfor%}
-            </tbody>
-        </table>
-    </div>
-
-
 </div>
+
 </body>
 </html>
