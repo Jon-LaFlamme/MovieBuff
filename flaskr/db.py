@@ -91,6 +91,52 @@ class MoviebuffDB():
             res = c.fetchall()
         return res
 
+    def filter_streaming(self, query: str, Services):
+        self.connect()
+        sql = sqls.streaming
+        sql += " and ("
+        for i in Services[:-1]:
+            sql += i + " = 1 or "
+        sql += Services[-1] + " = 1"
+        sql += ") order by avg_vote desc"
+        res = {"Query result": 0}
+        print(sql, file=sys.stderr)
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        self.close_connection()
+        return res
+
+    def filter_streaming_date(self, query: str, Services):
+        self.connect()
+        sql = sqls.streaming
+        sql += " and ("
+        for i in Services[:-1]:
+            sql += i + " = 1 or "
+        sql += Services[-1] + " = 1"
+        sql += ") order by year desc"
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        self.close_connection()
+        return res
+
+    def filter_streaming_title(self, query: str, Services):
+        self.connect()
+        sql = sqls.streaming
+        sql += " and ("
+        for i in Services[:-1]:
+            sql += i + " = 1 or "
+        sql += Services[-1] + " = 1"
+        sql += ") order by title"
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        self.close_connection()
+        return res
+
     def filter_query(self, query: str):
         self.connect()
         sql = sqls.filter_search_rating
@@ -114,120 +160,6 @@ class MoviebuffDB():
     def filter_query_title(self, query: str):
         self.connect()
         sql = sqls.filter_search_title
-        res = {"Query result": 0}
-        with self.driver.cursor() as c:
-            c.execute(sql, query)
-            res = c.fetchall()
-        self.close_connection()
-        return res
-
-    def filter_query_language(self, query: str, language):
-        self.connect()
-        if(len(language) == 1):
-            language.append("asdfasdf")
-        sql = sqls.filter_search_rating_language.format(tuple(language))
-        res = {"Query result": 0}
-        with self.driver.cursor() as c:
-            c.execute(sql, query)
-            res = c.fetchall()
-        self.close_connection()
-        return res
-
-    def filter_query_date_language(self, query: str, language):
-        self.connect()
-        if(len(language) == 1):
-            language.append("asdfasdf")
-        sql = sqls.filter_search_date_language.format(tuple(language))
-        res = {"Query result": 0}
-        with self.driver.cursor() as c:
-            c.execute(sql, query)
-            res = c.fetchall()
-        self.close_connection()
-        return res
-
-    def filter_query_title_language(self, query: str, language):
-        self.connect()
-        if(len(language) == 1):
-            language.append("asdfasdf")
-        sql = sqls.filter_search_title_language.format(tuple(language))
-        res = {"Query result": 0}
-        with self.driver.cursor() as c:
-            c.execute(sql, query)
-            res = c.fetchall()
-        self.close_connection()
-        return res
-
-    def filter_query_genre(self, query: str, genres):
-        self.connect()
-        if(len(genres) == 1):
-            genres.append("asdfasdf")
-        sql = sqls.filter_search_rating_genre.format(tuple(genres))
-        res = {"Query result": 0}
-        with self.driver.cursor() as c:
-            c.execute(sql, query)
-            res = c.fetchall()
-        self.close_connection()
-        return res
-
-    def filter_query_date_genre(self, query: str, genres):
-        self.connect()
-        if(len(genres) == 1):
-            genres.append("asdfasdf")
-        sql = sqls.filter_search_date_genre.format(tuple(genres))
-        res = {"Query result": 0}
-        with self.driver.cursor() as c:
-            c.execute(sql, query)
-            res = c.fetchall()
-        self.close_connection()
-        return res
-
-    def filter_query_title_genre(self, query: str, genres):
-        self.connect()
-        if(len(genres) == 1):
-            genres.append("asdfasdf")
-        sql = sqls.filter_search_title_genre.format(tuple(genres))
-        res = {"Query result": 0}
-        with self.driver.cursor() as c:
-            c.execute(sql, query)
-            res = c.fetchall()
-        self.close_connection()
-        return res
-
-    def filter_query_language_genre(self, query: str, languages, genres):
-        self.connect()
-        if(len(genres) == 1):
-            genres.append("asdfasdf")
-        if(len(languages) == 1):
-            languages.append("asdfasdf")
-        sql = sqls.filter_search_rating_language_genre.format(tuple(languages), tuple(genres))
-        res = {"Query result": 0}
-        with self.driver.cursor() as c:
-            c.execute(sql, query)
-            res = c.fetchall()
-        self.close_connection()
-        return res
-
-    def filter_query_date_language_genre(self, query: str, languages, genres):
-        self.connect()
-        if(len(genres) == 1):
-            genres.append("asdfasdf")
-        if(len(languages) == 1):
-            languages.append("asdfasdf")
-        sql = sqls.filter_search_date_language_genre.format(tuple(languages), tuple(genres))
-        res = {"Query result": 0}
-        with self.driver.cursor() as c:
-            c.execute(sql, query)
-            res = c.fetchall()
-        self.close_connection()
-        return res
-
-    def filter_query_title_language_genre(self, query: str, languages, genres):
-        self.connect()
-        if(len(genres) == 1):
-            genres.append("asdfasdf")
-        if(len(languages) == 1):
-            languages.append("asdfasdf")
-        sql = sqls.filter_search_title_language_genre.format(tuple(languages), tuple(genres))
         res = {"Query result": 0}
         with self.driver.cursor() as c:
             c.execute(sql, query)

@@ -50,6 +50,32 @@ def logout():
     session['login'] = False
     return render_template('base.html')
 
+def filterGenre(Genres, res):
+    delList = []
+    for i in res:
+        add = True
+        for j in Genres:
+            if j in i['genre']:
+                add = False
+                break
+        if (add):
+            delList.append(i['imdb_title_id'])
+    res[:] = [d for d in res if d['imdb_title_id'] not in delList]
+    return res
+
+def filterLanguage(Languages, res):
+    delList = []
+    for i in res:
+        add = True
+        for j in Languages:
+            if j in i['language']:
+                add = False
+                break
+        if (add):
+            delList.append(i['imdb_title_id'])
+    res[:] = [d for d in res if d['imdb_title_id'] not in delList]
+    return res
+
 @app.route('/process', methods=['GET','POST'])
 def process():
     query = []
@@ -61,46 +87,48 @@ def process():
 
     Languages = [item for sublist in request.json['languages'] for item in sublist]
     Genres = [item for sublist in request.json['genres'] for item in sublist]
+    Services = [item for sublist in request.json['streaming'] for item in sublist]
+
     addLanguages = False
     addGenres = False
+    addServices = False
 
     if(len(request.json['languages']) < 19):
         addLanguages = True
     if(len(request.json['genres']) < 17):
         addGenres = True
+    if(len(Services)):
+        addServices = True
 
     if(request.json['sorting'] == 'avg_vote'):
-        if(addLanguages and addGenres):
-            res = db.filter_query_language_genre(query, Languages,
-                                                 Genres)
-        elif(addLanguages):
-            res = db.filter_query_language(query, Languages)
-        elif(addGenres):
-            res = db.filter_query_genre(query, Genres)
+        if(addServices):
+            res = db.filter_streaming(query, Services)
         else:
             res = db.filter_query(query)
+        if(addGenres):
+            res = filterGenre(Genres, res)
+        if(addLanguages):
+            res = filterLanguage(Languages, res)
         return render_template('results.html', results = res)
     elif(request.json['sorting'] == 'year'):
-        if(addLanguages and addGenres):
-            res = db.filter_query_date_language_genre(query, Languages,
-                                                      Genres)
-        elif(addLanguages):
-            res = db.filter_query_date_language(query, Languages)
-        elif(addGenres):
-            res = db.filter_query_date_genre(query, Genres)
+        if(addServices):
+            res = db.filter_streaming_date(query, Services)
         else:
             res = db.filter_query_date(query)
+        if(addGenres):
+            res = filterGenre(Genres, res)
+        if(addLanguages):
+            res = filterLanguage(Languages, res)
         return render_template('results.html', results = res)
     else:
-        if(addLanguages and addGenres):
-            res = db.filter_query_title_language_genre(query, Languages,
-                                                       Genres)
-        elif(addLanguages):
-            res = db.filter_query_title_language(query, Languages)
-        elif(addGenres):
-            res = db.filter_query_title_genre(query, Genres)
+        if(addServices):
+            res = db.filter_streaming_title(query, Services)
         else:
             res = db.filter_query_title(query)
+        if(addGenres):
+            res = filterGenre(Genres, res)
+        if(addLanguages):
+            res = filterLanguage(Languages, res)
         return render_template('results.html', results = res)
 
 

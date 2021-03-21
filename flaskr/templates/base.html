@@ -43,9 +43,9 @@
                 <div class="btn-group">
                     <select id="multiselect2" multiple="multiple">
                         <option value="1">Netflix</option>
-                        <option value="2">Prime Video</option>
+                        <option value="2">Prime</option>
                         <option value="3">Hulu</option>
-                        <option value="4">Disney+</option>
+                        <option value="4">Disney</option>
                     </select>
                     <script type="text/javascript">
                             $(document).ready(function() {
@@ -71,13 +71,6 @@
                                         });
                                     }
                                 });
-                                $("#multiselect2").multiselect('selectAll', false);
-                                $("#multiselect2").multiselect('updateButtonText');
-                                services = $('#multiselect2 option:selected');
-                                        selectedServices = [];
-                                        $(services).each(function(index, services){
-                                            selectedServices.push([$(this).text()]);
-                                        });
                             });
                      </script>
                 </div>
@@ -301,7 +294,7 @@
                         'imdbStart' : imdb[0],
                         'imdbEnd' : imdb[1],
                         'sorting' : realSortingMethod,
-                    //    'streaming' : selectedServices,
+                        'streaming' : selectedServices,
                         'genres' : selectedGenres
                         }
 
@@ -325,7 +318,6 @@
         <br><br><br>
 
     </div>
-
     <div class="row justify-content-center" id="txtHint">Movie info will be listed here...</div>
 
 </div>
