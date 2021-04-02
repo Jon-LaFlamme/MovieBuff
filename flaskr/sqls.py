@@ -4,6 +4,7 @@ title_year_name = 'SELECT imdb_title_id, year, genre from imdblist WHERE Title=%
 
 delete_by_id = 'DELETE FROM imbdblist WHERE id=%s'
 
+delete_review_by_id = 'DELETE FROM reviews WHERE id=%s'
 
 def insert_record(form: dict) -> tuple:
 
@@ -40,6 +41,40 @@ def update_record(form: dict) -> tuple:
 
     return (sqls,tuple(values))
 
+def insert_review(form: dict) -> tuple:
+
+    sqls = 'INSERT INTO reviews ('
+    attributes = []
+    values = []
+    ref_tag = []
+
+    for k,v in form.items():
+        if v:
+            attributes.append(k)
+            values.append(v)
+            ref_tag.append('%s')
+
+    sqls += ','.join(attributes) + ') VALUES ('
+    sqls += ','.join(ref_tag) + ')'
+
+    return (sqls,tuple(values))
+
+
+def update_review(form: dict) -> tuple:
+
+    sqls = 'UPDATE reviews SET'
+    review_id = form.pop('review_id')
+    values = []
+    for k,v in form.items():
+        if v:
+            sqls += ' %s = %s'
+            values.append(k)
+            values.append(v)
+
+    sqls += ' WHERE review_id = %s'
+    values.append(review_id)
+
+    return (sqls,tuple(values))
 
 def purge_redundant_filters(form: dict) -> dict:
     '''Optimizes query performance by removing filters that select all'''

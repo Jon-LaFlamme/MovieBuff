@@ -173,6 +173,27 @@ def reviews(moviename):
     
     return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId)
 
+@app.route('/<moviename>/reviews/create', methods=['GET','POST']) #TODO new review
+def reviews_create(moviename):
+    titleId = str(moviename)
+    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
+    
+    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId)
+
+@app.route('/<moviename>/reviews/update', methods=['GET','POST']) #TODO update review
+def reviews_update(moviename):
+    titleId = str(moviename)
+    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
+    
+    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId)
+
+@app.route('/<moviename>/reviews/delete', methods=['GET','POST']) #TODO delete review
+def reviews_delelte(moviename):
+    titleId = str(moviename)
+    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
+    
+    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId)
+
 @app.route('/_<personname>')
 def person(personname):
     dbRes = db.query_nmData(str(personname))
