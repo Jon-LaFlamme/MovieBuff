@@ -85,17 +85,23 @@ def process():
     query.append(int(request.json['imdbStart']))
     query.append(int(request.json['imdbEnd']))
 
-    Languages = [item for sublist in request.json['languages'] for item in sublist]
-    Genres = [item for sublist in request.json['genres'] for item in sublist]
-    Services = [item for sublist in request.json['streaming'] for item in sublist]
+    Languages = []
+    Genres = []
+    Services = []
+    if('languages' in request.json):
+        Languages = [item for sublist in request.json['languages'] for item in sublist]
+    if('genres' in request.json):
+        Genres = [item for sublist in request.json['genres'] for item in sublist]
+    if('streaming' in request.json):
+        Services = [item for sublist in request.json['streaming'] for item in sublist]
 
     addLanguages = False
     addGenres = False
     addServices = False
 
-    if(len(request.json['languages']) < 19):
+    if(len(Languages) > 0 and len(Languages) < 19):
         addLanguages = True
-    if(len(request.json['genres']) < 17):
+    if(len(Genres) > 0 and len(Genres) < 17):
         addGenres = True
     if(len(Services)):
         addServices = True
