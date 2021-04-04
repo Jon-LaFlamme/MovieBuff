@@ -171,8 +171,8 @@ class MoviebuffDB():
         self.connect()
         res = {"Not yet implemented": 0}
         with self.driver.cursor() as c:
-            sql,values = sqls.query_enhanced(form)
-            c.execute(sql, values)
+            proc_args = sqls.query_enhanced(form)
+            c.execute("call GetMoviesByCriteria(?, ?, ?, ?, ?, ?, ?, ?)", proc_args)
             res = c.fetchall()  
         self.close_connection()         
         return res

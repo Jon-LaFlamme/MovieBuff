@@ -4,10 +4,20 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
         crossorigin="anonymous">
     <!-- Optional theme -->
+    <!--
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
         crossorigin="anonymous">
+    -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/azsearch.js@0.0.21/dist/AzSearch.css">
-    <title>Azure Cognitive Search Demo App</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" type="text/css"/>
+    <title>MovieBuff Search</title>
+    <link rel = "icon" href =
+            "../static/images/MB.svg"
+          type = "image/x-icon">
+    <link rel="stylesheet" href="../static/MovieBuffStyle.css">
+
+
     <style>
         .searchResults__result h4 {
             margin-top: 0px;
@@ -19,7 +29,7 @@
         }
     </style>
 </head>
-<body>
+<body style="background-color:black;color:silver">
     <div id="app">
         <nav class="navbar navbar-inverse navbar-fixed-top">
             <div class="container-fluid">
@@ -33,7 +43,7 @@
                     </button>
                     <div class="row">
                         <div class="col-md-2 pagelabel">
-                            <a class="navbar-brand pagelabel" target="_blank" href="https://portal.azure.com/#blade/HubsExtension/BrowseResourceBlade/resourceType/Microsoft.Search%2FsearchServices">Azure Cognitive Search</a>
+                            <a class="navbar-brand pagelabel" target="_blank" href="https://portal.azure.com/#blade/HubsExtension/BrowseResourceBlade/resourceType/Microsoft.Search%2FsearchServices">MovieBuff Search</a>
                         </div>
                         <div id="searchBox" class="col-mid-8 col-sm-8 col-xs-6"></div>
                         <div id="navbar" class="navbar-collapse collapse">
@@ -88,9 +98,9 @@
 
     // Initialize and connect to your search service
     var automagic = new AzSearch.Automagic({ index: "suggester-index-sample", queryKey: "3C3E9F84B7AA8460AB89519711D0CF29", service: "moviebuffsearch" });
-    
-    const resultTemplate = `<div class="col-xs-12 col-sm-9 col-md-9"><h4>{{title}}</h4><div class="resultDescription">{{{id}}}</div></div>`;
-
+    {% raw %}
+    const resultTemplate = `<div class="col-xs-12 col-sm-9 col-md-9"><h4>{{{title}}}</h4><div class="resultDescription">{{{description}}}</div></div>`;
+    {% endraw %}
     // add a results view using the template defined above
     automagic.addResults("results", { count: true }, resultTemplate);
     
@@ -109,7 +119,7 @@
 
     var suggestionsTemplate = `
             <p> imdb_title_id: {{imdb_title_id}} </p>
-            <p> title: {{title}} </p> {{{searchText}}}`;
+            <p> title: {{title}} </p> {{searchText}}`;
 
     // Add a search box that uses suggester "suggester-1", grabbing some additional fields to display during suggestions. Use the template defined above
     automagic.addSearchBox("searchBox",

@@ -18,11 +18,9 @@ def home():
         return render_template('base.html')
     else:
         query = request.form.get('Title')
-        if validate.valid_title(query):
-            res = db.query_basic(query)
-            return json2html.convert(json=res)
-        else:
-            return "ERROR: Invalid query. Please try again without quotes or escape characters"
+        res = db.query_basic(query)
+        return json2html.convert(json=res)
+
 
 @app.route('/Login', methods=['GET','POST'])
 def login():
@@ -132,20 +130,28 @@ def process():
         return render_template('results.html', results = res)
 
 
-@app.route('/search', methods=['GET','POST'])   #Test Route for noSQL API
+@app.route('/search', methods=['GET','POST'])   #Test Route/Page for Stored Proc Call to RDBMS
 def search():
     if request.method == 'GET':
         return render_template('base-test-nosql.html')
     else:
-        #sql,values = sqls.query_enhanced(request.json)  #Uncomment this,next line to test SQL String and Values  
-        #return json2html.convert(json = {sql:values})
-        res = cosmos_db.query_enhanced(request.json)  
+        print(request.json, file=sys.stderr)
+        res = cosmos_db.query_enhanced(request.json)
+        if not res:
+            res = {}
+            res['imdb_title_id'] = "tt0000009"
+            res['title'] = "No results found"
+            res['year'] = "N/A"
+            res['genre'] = "N/A"
+            res['language'] = "N/A"
+            res['avg_vote'] = 'N/A'
+            res['Netflix'] = "N/A"
+            res['Hulu'] = "N/A"
+            res['Prime'] = "N/A"
+            res['Disney'] = "N/A"
         print(res, file=sys.stderr)
-        # print(titleRes, file=sys.stderr)
-        return render_template('results.html', results = res) 
-    res = {"error": "Test query not working"}   
-    return render_template('results.html', results = res)
-
+        return render_template('results.html', results = [res])  
+    return render_template('base-test-nosql.html')
 
 @app.route('/<moviename>')
 def movie(moviename):
@@ -165,6 +171,7 @@ def movie(moviename):
             names[i['imdb_title_id']] = db.query_rName(str(i['imdb_title_id']))[0]['name']
     return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names, 
                     imgurl = imgurl, title = dbRes['title'], titleId = titleId)
+
 
 @app.route('/<moviename>/reviews')
 def reviews(moviename):
@@ -231,12 +238,9 @@ def delete():
         return json2html.convert(json = res)
 
 
-@app.route('/full-text-search', methods=['GET','POST'])
-def full_text_search():
-    if request.method == 'GET':
-        return render_template('AzSearch.html')
-    else:
-        return render_template('AzSearch.html')
+@app.route('/quick-search')
+def quick_search():
+    return render_template('FullTextSearch.html')
 
 
 @app.route('/cosmos-lookup', methods=['GET','POST'])
