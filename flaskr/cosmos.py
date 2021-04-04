@@ -2,6 +2,8 @@ from azure.cosmos import CosmosClient
 from flaskr import sqls as sqls
 import json
 
+#Note: API targets REST api-version=2019-05-06
+
 class MoviebuffCosmos():
     def __init__(self):
         self.app = None
@@ -27,11 +29,12 @@ class MoviebuffCosmos():
         self.container = self.db.get_container_client('title')
 
                                                        
-    def query_enhanced(self, title_id: str) -> list:
+    def query_enhanced(self, _id: str) -> list:
         self.connect()
+        #  5a931121-e77e-42a3-9b83-201ec0d15854     #Sample ID for NoSQL DB
         res = {"Not yet implemented": 0}
-        query = "SELECT * FROM c WHERE c.imdb_title=@imdb_id"
-        values = [{"name":'@imdb_id', "value":title_id}]
+        query = "SELECT * FROM c WHERE c.id=@id"
+        values = [{"name":'@id', "value": _id}]
         items = list(self.container.query_items(query=query, parameters=values,
                                           enable_cross_partition_query=True))
         self.close_connection()         
