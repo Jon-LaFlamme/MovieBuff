@@ -83,17 +83,23 @@ def process():
     query.append(int(request.json['imdbStart']))
     query.append(int(request.json['imdbEnd']))
 
-    Languages = [item for sublist in request.json['languages'] for item in sublist]
-    Genres = [item for sublist in request.json['genres'] for item in sublist]
-    Services = [item for sublist in request.json['streaming'] for item in sublist]
+    Languages = []
+    Genres = []
+    Services = []
+    if('languages' in request.json):
+        Languages = [item for sublist in request.json['languages'] for item in sublist]
+    if('genres' in request.json):
+        Genres = [item for sublist in request.json['genres'] for item in sublist]
+    if('streaming' in request.json):
+        Services = [item for sublist in request.json['streaming'] for item in sublist]
 
     addLanguages = False
     addGenres = False
     addServices = False
 
-    if(len(request.json['languages']) < 19):
+    if(len(Languages) > 0 and len(Languages) < 19):
         addLanguages = True
-    if(len(request.json['genres']) < 17):
+    if(len(Genres) > 0 and len(Genres) < 17):
         addGenres = True
     if(len(Services)):
         addServices = True
@@ -156,8 +162,8 @@ def search():
 @app.route('/<moviename>')
 def movie(moviename):
     titleId = str(moviename)
-    dbRes = db.query_id(titleId)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
+    dbRes = db.query_id(titleId)
     if(dbRes):
         remove = []
         for i in dbRes.keys():
@@ -177,29 +183,51 @@ def movie(moviename):
 def reviews(moviename):
     titleId = str(moviename)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
-    
-    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId)
+    dbRes = db.query_id_reviews(titleId)
+    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId, dbRes = dbRes)
 
-@app.route('/<moviename>/reviews/create', methods=['GET','POST']) #TODO new review
+@app.route('/<moviename>/reviews/create', methods=['GET','POST'])
 def reviews_create(moviename):
     titleId = str(moviename)
-    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
-    
-    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId)
+    if request.method == 'GET':
+        return render_template('reviews_create.html', title = db.query_movieName(titleId)['title'], titleId = titleId)
 
-@app.route('/<moviename>/reviews/update', methods=['GET','POST']) #TODO update review
-def reviews_update(moviename):
-    titleId = str(moviename)
-    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
-    
-    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId)
+    elif request.method == 'POST':
+        UserID = request.form.get("UserID")
+        UserReviews = request.form.get("UserReviews")
+        CriticReviews = request.form.get("CriticReviews")
+        Review = request.form.get("Review")
+        db.create_review(UserID, UserReviews, CriticReviews, titleId, UserID)
+        return redirect(url_for('reviews', moviename=titleId))
 
-@app.route('/<moviename>/reviews/delete', methods=['GET','POST']) #TODO delete review
-def reviews_delelte(moviename):
+@app.route('/<moviename>/reviews/<reviewId>/update', methods=['GET','POST'])
+def reviews_update(moviename, reviewId):
     titleId = str(moviename)
-    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
+    if request.method == 'GET':
+        return render_template('reviews_update.html', title = db.query_movieName(titleId)['title'], titleId = titleId, reviewId = reviewId)
+    elif request.method == 'POST':
+        UserID = request.form.get("UserID")
+        UserReviews = request.form.get("UserReviews")
+        CriticReviews = request.form.get("CriticReviews")
+        Review = request.form.get("Review")
+        db.update_review(UserReviews, CriticReviews, UserID, reviewId, Review)
+        return redirect(url_for('reviews', moviename=titleId))
     
-    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId)
+
+@app.route('/<moviename>/reviews/<reviewId>/delete', methods=['GET','POST'])
+def reviews_delete(moviename, reviewId):
+    titleId = str(moviename)
+    
+    if request.method == 'GET':
+        dbRes = db.query_review_by_reviewid(reviewId)
+        
+        return render_template('reviews_delete.html', title = db.query_movieName(titleId)['title'], titleId = titleId, dbRes = dbRes)
+    elif request.method == 'POST':
+        db.remove_reviewtext_by_reviewid(reviewId)
+        db.remove_review_by_reviewid(reviewId)
+    
+    return redirect(url_for('reviews', moviename=titleId))
+
 
 @app.route('/_<personname>')
 def person(personname):

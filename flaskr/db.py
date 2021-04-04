@@ -220,7 +220,46 @@ class MoviebuffDB():
         self.close_connection()       
         return {"Number of records deleted from imdb": k}
 
+    def query_id_reviews(self, query: str):
+        if not self.driver:
+            self.connect()
+        sql = sqls.imdb_id_reviews
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        return res
+ 
+    def query_review_by_reviewid(self, query: str):
+        if not self.driver:
+            self.connect()
+        sql = sqls.imdb_review_by_reviewId
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        return res
 
+    def remove_review_by_reviewid(self, query: str):
+        if not self.driver:
+            self.connect()
+        sql = sqls.remove_review_by_reviewId
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        return res
+
+    def remove_reviewtext_by_reviewid(self, query: str):
+        if not self.driver:
+            self.connect()
+        sql = sqls.remove_reviewtext_by_reviewId
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchall()
+        return res
+        
     def update_record(self, s: str) -> dict:
         self.connect()
         k = -1
@@ -239,20 +278,24 @@ class MoviebuffDB():
         self.close_connection()       
         return {"Number of reviews deleted from database": k}
 
-
-    def create_review(self, s: str) -> dict:
+    #UserID, UserReviews, CriticReviews, TitleID, Review
+    def create_review(self, UserID, UserReviews, CriticReviews, TitleID, Review) -> dict:
         self.connect()
         with self.driver.cursor() as c:
-            sql = sqls.insert_review(s)
-            num = c.execute(sql, s) 
+            sql = sqls.create_review
+            num = c.execute(sql, (TitleID, UserReviews, CriticReviews, UserID, UserID))
+            sql = sqls.create_reviewtext
+            num = c.execute(sql, (TitleID, UserID, CriticReviews, UserReviews, Review, UserID, UserID)) 
         self.close_connection()
         return {"Created": True}
 
 
-    def update_review(self, s: str) -> dict:
+    def update_review(self, UserReviews, CriticReviews, UserID, ReviewID, Review) -> dict:
         self.connect()
         with self.driver.cursor() as c:
-            sql = sqls.update_review(s)
-            num = c.execute(sql, s) 
+            sql = sqls.update_review
+            num = c.execute(sql, (UserReviews, CriticReviews, UserID, ReviewID)) 
+            sql = sqls.update_reviewtext
+            num = c.execute(sql, (Review, ReviewID)) 
         self.close_connection()       
         return {"Updated": True}

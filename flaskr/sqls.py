@@ -122,6 +122,19 @@ filter_search_title = "select imdb_title_id,title, year, genre, language, avg_vo
 
 imdb_id = "SELECT * FROM imdblist WHERE imdb_title_id = %s"
 
+imdb_id_reviews = "SELECT * FROM reviews JOIN reviewtext ON reviews.ReviewId = reviewtext.ReviewId WHERE TitleId = %s"
+
+imdb_review_by_reviewId = "SELECT * FROM reviews JOIN reviewtext ON reviews.ReviewId = reviewtext.ReviewId WHERE reviews.ReviewId = %s"
+
+remove_review_by_reviewId = "DELETE FROM reviews WHERE ReviewId = %s"
+remove_reviewtext_by_reviewId = "DELETE FROM reviewtext WHERE ReviewId = %s"
+
+create_review = "INSERT INTO reviews (TitleID, UserReviews, CriticReviews, CreatedByUserID, CreatedByDate, UpdatedByUserID, UpdatedByDate)" + "VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP)"
+create_reviewtext = "INSERT INTO reviewtext (ReviewID, Review, CreatedByUserID, UpdatedByUserID, CreatedByDate, UpdatedByDate)" + "VALUES ((SELECT ReviewID FROM reviews WHERE TitleID = %s AND CreatedByUserID = %s AND CriticReviews = %s AND UserReviews = %s), %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+
+update_review = "UPDATE reviews SET UserReviews = %s, CriticReviews = %s, UpdatedByUserID = %s, UpdatedByDate = CURRENT_TIMESTAMP WHERE ReviewID = %s"
+update_reviewtext = "UPDATE reviewtext SET Review = %s WHERE ReviewID = %s"
+
 add_user = "INSERT INTO user (UserName, EmailAddress, Password) values (%s, %s, %s)"
 
 login = "SELECT COUNT(*) FROM user WHERE UserName = %s AND Password = %s"
