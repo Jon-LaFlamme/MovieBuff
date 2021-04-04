@@ -239,32 +239,6 @@ def person(personname):
     # print(titleRes, file=sys.stderr)
     return render_template('person.html', dbRes = dbRes, titleRes = titleRes)
 
-@app.route('/update', methods=['GET','POST'])
-def update():
-    if request.method == 'GET':
-        return render_template('base.html') #TODO html file required for update procedure
-    else:
-        res = db.update_record(request.form)
-        return json2html.convert(json = res)
-
-
-@app.route('/create', methods=['GET','POST'])
-def create():
-    if request.method == 'GET':
-        return render_template('base.html')  #TODO html file required insert procedure
-    else:
-        res = db.create_record(request.form)
-        return json2html.convert(json = res)
-
-
-@app.route('/delete', methods=['GET','POST'])
-def delete():
-    if request.method == 'GET':
-        return render_template('base.html') #TODO html file required for delete procedure
-    else:
-        res = db.delete_record(request.form)
-        return json2html.convert(json = res)
-
 
 @app.route('/quick-search')
 def quick_search():
@@ -276,5 +250,5 @@ def cosmos_lookup():
     if request.method == 'GET':
         return render_template('basic-title-search.html')
     else:
-        res = cosmos_db.query_enhanced(request.form['imdb_id'])[0]
+        res = cosmos_db.query_enhanced(request.form['_id'])[0]
         return render_template('results.html', results = [res])

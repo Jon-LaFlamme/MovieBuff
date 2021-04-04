@@ -98,8 +98,12 @@
 
     // Initialize and connect to your search service
     var automagic = new AzSearch.Automagic({ index: "suggester-index-sample", queryKey: "3C3E9F84B7AA8460AB89519711D0CF29", service: "moviebuffsearch" });
+    // TODO: In resultTemplate, make href link clickable to results page 
     {% raw %}
-    const resultTemplate = `<div class="col-xs-12 col-sm-9 col-md-9"><h4>{{{title}}}</h4><div class="resultDescription">{{{description}}}</div></div>`;
+    const resultTemplate = `<div class="col-xs-12 col-sm-9 col-md-9">
+                            <h4>{{{title}}}</h4>
+                            <div class="resultDescription">{{{description}}}</div>
+                            </div>`;
     {% endraw %}
     // add a results view using the template defined above
     automagic.addResults("results", { count: true }, resultTemplate);

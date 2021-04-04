@@ -168,6 +168,7 @@ class MoviebuffDB():
         return res
 
     def query_enhanced(self, form: dict) -> dict:
+        """Processes filters and calls stored proc: GetMoviesByCriteria() """
         self.connect()
         res = {"Not yet implemented": 0}
         with self.driver.cursor() as c:
@@ -200,25 +201,6 @@ class MoviebuffDB():
             except:
                 return False
         return True
-
-    def delete_record(self, s: str) -> dict:
-        self.connect()
-        k = -1
-        with self.driver.cursor() as c:
-            sql = sqls.delete_by_id(s)
-            num = c.execute(sql, s) 
-        self.close_connection()       
-        return {"Number of records deleted from imdb": k}
-
-
-    def create_record(self, s: str) -> dict:
-        self.connect()
-        k = -1
-        with self.driver.cursor() as c:
-            sql = sqls.insert_by_id(s)
-            num = c.execute(sql, s) 
-        self.close_connection()       
-        return {"Number of records deleted from imdb": k}
 
     def query_id_reviews(self, query: str):
         if not self.driver:
@@ -259,15 +241,6 @@ class MoviebuffDB():
             c.execute(sql, query)
             res = c.fetchall()
         return res
-        
-    def update_record(self, s: str) -> dict:
-        self.connect()
-        k = -1
-        with self.driver.cursor() as c:
-            sql = sqls.delete_by_id(s)
-            num = c.execute(sql, s) 
-        self.close_connection()       
-        return {"Number of records deleted from imdb": k}
 
     def delete_review(self, s: str) -> dict:
         self.connect()
