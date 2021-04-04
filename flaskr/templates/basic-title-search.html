@@ -1,14 +1,7 @@
-{% extends 'base.html' %}
-{% block title %} Name and Location Form {% endblock %}
-{% block content %}
-{{super()}}
-        <p><center>Search for a movie by title name:</center></p>
-        <form method='POST' action="/results">
+<p><center>Test Page: lookup movie info by IMDB title from CosmosDB</center></p>
+        <form method='POST' action="/cosmos-lookup">
             <center>
-            <input type="text" name="primaryTitle">
+            <input type="text" name="imdb_id">
             <input type="submit" value="Submit">
             </center>
             </form>
-
-        <h1>&nbsp</h1>
-{% endblock %}

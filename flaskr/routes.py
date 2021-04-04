@@ -251,3 +251,20 @@ def delete():
     else:
         res = db.delete_record(request.form)
         return json2html.convert(json = res)
+
+
+@app.route('/full-text-search', methods=['GET','POST'])
+def full_text_search():
+    if request.method == 'GET':
+        return render_template('AzSearch.html')
+    else:
+        return render_template('AzSearch.html')
+
+
+@app.route('/cosmos-lookup', methods=['GET','POST'])
+def cosmos_lookup():
+    if request.method == 'GET':
+        return render_template('basic-title-search.html')
+    else:
+        res = cosmos_db.query_enhanced(request.form['imdb_id'])[0]
+        return render_template('results.html', results = [res])
