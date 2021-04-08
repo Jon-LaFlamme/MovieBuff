@@ -284,7 +284,7 @@
                 <style>
                     .FTS{
                         height: 70%; /* 100% Full-height */
-                        width: 450px; /* 0 width - change this with JavaScript */
+                        width: 395px; /* 0 width - change this with JavaScript */
                         position: fixed; /* Stay in place */
                         right:1px;
                         }
@@ -373,11 +373,11 @@
                     </div>
                 </ul>
         </div>
-          <!-- Should push results content to right &#9664;-->
+    
         <div>
             <div id="results" class="row placeholders">
             </div>
-            <div id="pager" class="row">
+            <div id="pager" class="row col-sm-3 col-md-offset-30" >pager offset</div>
             </div>
         </div>
     </div>
@@ -466,7 +466,7 @@
     {% raw %}
     const resultTemplate = `<div class="res">
                             <hr style="width:40%;text-align:left;margin-left:0; margin-top:10; background-color:white">
-                            <h4>{{{title}}}</h4>
+                            <a href="/{{{imdb_title_id}}}"><h4>{{{title}}}</h4></a>
                             <div class="resultDescription">{{{description}}}</div>
                             </div>
                             <style>
@@ -478,7 +478,7 @@
     {% endraw %}
     // add a results view using the template defined above
     automagic.addResults("results", { count: true }, resultTemplate);
-    
+
     // Adds a pager control << 1 2 3 ... >>
     automagic.addPager("pager");
     

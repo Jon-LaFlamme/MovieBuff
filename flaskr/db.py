@@ -26,7 +26,6 @@ class MoviebuffDB():
                                 cursorclass=pymysql.cursors.DictCursor)
 
     def query_basic(self, query: str) -> dict:
-        '''Quick Search: Target for Demo on Mar 14'''
         self.connect()
         sql = sqls.title_name
         res = {"Query result": 0}
@@ -37,7 +36,6 @@ class MoviebuffDB():
         return res
 
     def query_id(self, query: str):
-        '''Quick Search: Target for Demo on Mar 14'''
         if not self.driver:
             self.connect()
         sql = sqls.imdb_id
@@ -48,7 +46,6 @@ class MoviebuffDB():
         return res
 
     def query_nmData(self, query: str):
-        '''Quick Search: Target for Demo on Mar 14'''
         if not self.driver:
             self.connect()
         sql = sqls.nameData

@@ -33,7 +33,7 @@ class MoviebuffCosmos():
         self.connect()
         #  5a931121-e77e-42a3-9b83-201ec0d15854     #Sample ID for NoSQL DB
         res = {"Not yet implemented": 0}
-        query = "SELECT * FROM c WHERE c.id=@id"
+        query = "SELECT * FROM c WHERE c.imdb_title_id=@id"
         values = [{"name":'@id', "value": _id}]
         items = list(self.container.query_items(query=query, parameters=values,
                                           enable_cross_partition_query=True))

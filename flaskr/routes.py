@@ -12,6 +12,17 @@ from flaskr import sqls as sqls
 db = MoviebuffDB()
 cosmos_db = MoviebuffCosmos()
 
+FAILURE = {'imdb_title_id':"",
+        'title':"title not found",
+        'year':"N/A",
+        'genre':"N/A",
+        'language':"N/A",
+        'avg_vote':'N/A',
+        'Netflix':"N/A",
+        'Hulu':"N/A",
+        'Prime':"N/A",
+        'Disney':"N/A"}
+
 @app.route('/', methods=['GET','POST'])  #Basic Title Search/Home Page
 def home():
     if request.method == 'GET':
@@ -144,17 +155,7 @@ def search():
         print(request.json, file=sys.stderr)
         res = cosmos_db.query_enhanced(request.json)
         if not res:
-            res = {}
-            res['imdb_title_id'] = "tt0000009"
-            res['title'] = "No results found"
-            res['year'] = "N/A"
-            res['genre'] = "N/A"
-            res['language'] = "N/A"
-            res['avg_vote'] = 'N/A'
-            res['Netflix'] = "N/A"
-            res['Hulu'] = "N/A"
-            res['Prime'] = "N/A"
-            res['Disney'] = "N/A"
+            res = FAILURE
         print(res, file=sys.stderr)
         return render_template('results.html', results = [res])  
     return render_template('base-test-nosql.html')
@@ -162,8 +163,13 @@ def search():
 @app.route('/<moviename>')
 def movie(moviename):
     titleId = str(moviename)
+    print("\n requested title_id: "+ titleId + "\n", file=sys.stderr)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
-    dbRes = db.query_id(titleId)
+    #dbRes = db.query_id(titleId)   Note: need to port to noSQL from here forward on document pulls
+    dbRes = None
+    res = cosmos_db.query_enhanced(titleId)
+    print("\n cosmosDB results: "+ str(res) + "\n", file=sys.stderr)
+
     if(dbRes):
         remove = []
         for i in dbRes.keys():
@@ -175,9 +181,31 @@ def movie(moviename):
         names = dict()
         for i in nmRes:
             names[i['imdb_title_id']] = db.query_rName(str(i['imdb_title_id']))[0]['name']
-    return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names, 
-                    imgurl = imgurl, title = dbRes['title'], titleId = titleId)
+        return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names, 
+                        imgurl = imgurl, title = dbRes['title'], titleId = titleId)
+    else:
+        if res:
+            #Testing: This title image in Datastore: try Intolerance (tt00006864)
+            dbRes = res[0]
+            remove_fields = ["id", "_rid", "_self", "_etag", "_attachments",
+                             "_ts", "reviews_from_critics", "reviews_from_users",
+                             "original_title", "date_published"]
+            swaps = ["writer", "director", "actors"]
+            cast_crew = {}
 
+            for field in remove_fields:
+                dbRes.pop(field)
+            for field in swaps:
+                cast_crew[field] = dbRes.pop(field)
+            for k,v in dbRes.items():
+                if not v:
+                    dbRes[k] = "N/A"
+
+        else:
+            dbRes = FAILURE
+        dbRes['imdb_title_id'] = moviename
+        return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = dbRes['title'], names = cast_crew, 
+                        imgurl = imgurl, title = dbRes['title'], titleId = titleId)
 
 @app.route('/<moviename>/reviews')
 def reviews(moviename):
@@ -240,14 +268,11 @@ def person(personname):
     return render_template('person.html', dbRes = dbRes, titleRes = titleRes)
 
 
-@app.route('/quick-search')
-def quick_search():
-    return render_template('FullTextSearch.html')
 
-
-@app.route('/cosmos-lookup', methods=['GET','POST'])
+@app.route('/title-fetch/<title_id>', methods=['GET','POST'])
 def cosmos_lookup():
     if request.method == 'GET':
+        res = cosmos_db.query_enhanced(title_id)
         return render_template('basic-title-search.html')
     else:
         res = cosmos_db.query_enhanced(request.form['_id'])[0]
