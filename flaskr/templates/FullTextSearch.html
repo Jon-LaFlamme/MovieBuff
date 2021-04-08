@@ -122,8 +122,9 @@
     automagic.store.setSuggestionsProcessor(suggestionsProcessor);
 
     var suggestionsTemplate = `
-            <p> imdb_title_id: {{imdb_title_id}} </p>
-            <p> title: {{title}} </p> {{searchText}}`;
+            <p> title: {{title}} </p> {{searchText}}
+            `
+            ;
 
     // Add a search box that uses suggester "suggester-1", grabbing some additional fields to display during suggestions. Use the template defined above
     automagic.addSearchBox("searchBox",
@@ -131,7 +132,7 @@
             highlightPreTag: "<b>",
             highlightPostTag: "</b>",
             suggesterName: "suggester-1",
-            select: "imdb_title_id,title"
+            select: "title"
         },
         "",
         suggestionsTemplate);
