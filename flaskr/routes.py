@@ -4,13 +4,15 @@ from json2html import *
 from flaskr.forms import Title
 from flaskr.db import MoviebuffDB
 from flaskr.cosmos import MoviebuffCosmos
-#from flaskr import validate as validate
+from flaskr.mongo import MongoDB
+
 from flaskr import app
 import json
 from flaskr import sqls as sqls
 
 db = MoviebuffDB()
 cosmos_db = MoviebuffCosmos()
+mondgo_db = MongoDB()
 
 FAILURE = {'imdb_title_id':"",
         'title':"title not found",
@@ -163,13 +165,13 @@ def search():
 @app.route('/<moviename>')
 def movie(moviename):
     titleId = str(moviename)
-    print("\n requested title_id: "+ titleId + "\n", file=sys.stderr)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
-    #dbRes = db.query_id(titleId)   Note: need to port to noSQL from here forward on document pulls
+    
     dbRes = None
-    res = cosmos_db.query_enhanced(titleId)
+    res = mondgo_db.query_by_id(titleId)
     print("\n cosmosDB results: "+ str(res) + "\n", file=sys.stderr)
 
+    #dbRes = db.query_id(titleId)   Note: need to port to noSQL/MongoDB from here forward on document pulls by id
     if(dbRes):
         remove = []
         for i in dbRes.keys():
@@ -185,26 +187,31 @@ def movie(moviename):
                         imgurl = imgurl, title = dbRes['title'], titleId = titleId)
     else:
         if res:
-            #Testing: This title image in Datastore: try Intolerance (tt00006864)
-            dbRes = res[0]
-            remove_fields = ["id", "_rid", "_self", "_etag", "_attachments",
-                             "_ts", "reviews_from_critics", "reviews_from_users",
+            #Testing: This title image verified in Datastore: try Intolerance (tt00006864)
+            dbRes = res
+            remove_fields = ["_id", "reviews_from_critics", "reviews_from_users",
                              "original_title", "date_published"]
             swaps = ["writer", "director", "actors"]
             cast_crew = {}
 
             for field in remove_fields:
-                dbRes.pop(field)
+                if field in dbRes:
+                    dbRes.pop(field)
             for field in swaps:
                 cast_crew[field] = dbRes.pop(field)
             for k,v in dbRes.items():
                 if not v:
                     dbRes[k] = "N/A"
+            
+            nmRes = db.query_nm(str(moviename))
+            names = dict()
+            for i in nmRes:
+                names[i['imdb_title_id']] = db.query_rName(str(i['imdb_title_id']))[0]['name']
 
         else:
             dbRes = FAILURE
-        dbRes['imdb_title_id'] = moviename
-        return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = dbRes['title'], names = cast_crew, 
+            dbRes['imdb_title_id'] = moviename
+        return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names, 
                         imgurl = imgurl, title = dbRes['title'], titleId = titleId)
 
 @app.route('/<moviename>/reviews')
