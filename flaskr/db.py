@@ -26,7 +26,6 @@ class MoviebuffDB():
                                 cursorclass=pymysql.cursors.DictCursor)
 
     def query_basic(self, query: str) -> dict:
-        '''Quick Search: Target for Demo on Mar 14'''
         self.connect()
         sql = sqls.title_name
         res = {"Query result": 0}
@@ -37,7 +36,6 @@ class MoviebuffDB():
         return res
 
     def query_id(self, query: str):
-        '''Quick Search: Target for Demo on Mar 14'''
         if not self.driver:
             self.connect()
         sql = sqls.imdb_id
@@ -48,7 +46,6 @@ class MoviebuffDB():
         return res
 
     def query_nmData(self, query: str):
-        '''Quick Search: Target for Demo on Mar 14'''
         if not self.driver:
             self.connect()
         sql = sqls.nameData
@@ -168,11 +165,12 @@ class MoviebuffDB():
         return res
 
     def query_enhanced(self, form: dict) -> dict:
+        """Processes filters and calls stored proc: GetMoviesByCriteria() """
         self.connect()
         res = {"Not yet implemented": 0}
         with self.driver.cursor() as c:
-            sql,values = sqls.query_enhanced(form)
-            c.execute(sql, values)
+            proc_args = sqls.query_enhanced(form)
+            c.execute("call GetMoviesByCriteria(?, ?, ?, ?, ?, ?, ?, ?)", proc_args)
             res = c.fetchall()  
         self.close_connection()         
         return res
@@ -200,25 +198,6 @@ class MoviebuffDB():
             except:
                 return False
         return True
-
-    def delete_record(self, s: str) -> dict:
-        self.connect()
-        k = -1
-        with self.driver.cursor() as c:
-            sql = sqls.delete_by_id(s)
-            num = c.execute(sql, s) 
-        self.close_connection()       
-        return {"Number of records deleted from imdb": k}
-
-
-    def create_record(self, s: str) -> dict:
-        self.connect()
-        k = -1
-        with self.driver.cursor() as c:
-            sql = sqls.insert_by_id(s)
-            num = c.execute(sql, s) 
-        self.close_connection()       
-        return {"Number of records deleted from imdb": k}
 
     def query_id_reviews(self, query: str):
         if not self.driver:
@@ -259,15 +238,6 @@ class MoviebuffDB():
             c.execute(sql, query)
             res = c.fetchall()
         return res
-        
-    def update_record(self, s: str) -> dict:
-        self.connect()
-        k = -1
-        with self.driver.cursor() as c:
-            sql = sqls.delete_by_id(s)
-            num = c.execute(sql, s) 
-        self.close_connection()       
-        return {"Number of records deleted from imdb": k}
 
     def delete_review(self, s: str) -> dict:
         self.connect()

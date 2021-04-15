@@ -76,105 +76,43 @@ def update_review(form: dict) -> tuple:
 
     return (sqls,tuple(values))
 
-def purge_redundant_filters(form: dict) -> dict:
-    '''Optimizes query performance by removing filters that select all'''
+
+def clean_filters(form: dict) -> dict:
+    '''Process filter fields'''
     if(len(form['languages']) == 19):
-        form['languages'] = None
+        form['languages'] = "NULL"
     else:
         form['languages'] = [item for sublist in form['languages'] for item in sublist] #flatten list
     if(len(form['genres']) == 17):
-        form['genres'] = None
+        form['genres'] = "NULL"
     else:
         form['genres'] = [item for sublist in form['genres'] for item in sublist] #flatten list
-    #if(len(form['streaming_services']) == 4):
-        # form['streaming_services'] = None
+    if(len(form['streaming_services']) == 4):
+         form['streaming_services'] = "Null"
     if(form['yearStart']=='1900' and form['yearEnd']=='2021'):
-        form['yearStart'] = None
-        form['yearEnd'] = None
+        form['yearStart'] = "NULL"
+        form['yearEnd'] = "NULL"
     if (form['imdbStart']=='0' and form['imdbEnd']=='10'):
-        form['imdbStart'] = None
-        form['imdbEnd'] = None
-    #if(form['rottenStart']==0 and form['rottenEnd']==10):
-    #    form['rottenStart'] = None
-    #    form['rottenEnd'] = None   
+        form['imdbStart'] = "NULL"
+        form['imdbEnd'] = "NULL"
+    form.pop('rottenStart')
 
     return form
 
-
-def query_enhanced(form: dict) -> tuple:
-
-    form = purge_redundant_filters(form)
+def query_enhanced(form:dict) -> list:
+    '''Cleanup form and convert to stored proc signature as list'''
+    form = clean_filters(form)
     languages = form['languages']
-    #services = form['streaming_services']
+    services = form['streaming_services']
     genres = form['genres']
     year_start = form['yearStart']
     year_end = form['yearEnd']
     imdb_start = form['imdbStart']
     imdb_end = form['imdbEnd']
-    #rotten_start = form['rottenStart']
-    #rotten_end = form['rottenEnd']
     sort_by = form['sorting']
-
-    #sqls = 'SELECT imdblist, <stream_service_table> WHERE '
-    sqls = 'SELECT title, year, genre, language, avg_vote FROM imdblist WHERE'
-    add_and = False
-    values = []
-
-    if languages:
-        escapes = ','.join(['%s' for x in languages])
-        sqls += ' language IN (' + escapes + ')'      
-        values.extend(list(languages))
-        add_and = True
-
-    #if services:
-    #    if add_and:
-    #        sqls += ' AND'
-    #    escapes = ','.join(['%s' for x in services])
-    #    sqls += ' services IN (' + escapes + ')'      
-    #    values.extend(services)
-    #    add_and = True
-
-    if genres:
-        if add_and:
-            sqls += ' AND'
-        escapes = ','.join(['%s' for x in genres])
-        sqls += ' genre IN (' + escapes + ')'   
-        values.extend(list(genres))
-        add_and = True
-
-    if year_start and year_end:
-        if add_and:
-            sqls += ' AND'
-        sqls += ' year BETWEEN %s AND %s'
-        values.extend([year_start, year_end])
-        add_and = True
-
-    if imdb_start and imdb_end:
-        if add_and:
-            sqls += ' AND'
-        sqls += ' avg_vote BETWEEN %s AND %s'
-        values.extend([imdb_start, imdb_end])
-        add_and = True
-
-    #if rt_start and rt_end:
-        #if add_and:
-         #   sqls += ' AND'
-      #  sqls += ' rt_rating BETWEEN %d AND %d'
-       # values.extend([rt_start, rt_end])
-       #add_and = True
     
-    if add_and == False:
-        sqls = 'SELECT title, year, genre, language, avg_vote FROM imdblist'
-
-    if sort_by:
-        if sort_by == 'title':
-            sqls += ' ORDER BY %s'
-        else:
-            sqls += ' ORDER BY %s DESC'
-        values.append(sort_by)
-
-    return (sqls, tuple(values))
-
+    return [genres, languages, services, year_start, year_end, imdb_start, imdb_end, sort_by]
+    
 
 filter_search_rating = "select imdb_title_id, title, year, genre, language, avg_vote from imdblist where year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s order by avg_vote desc"
 

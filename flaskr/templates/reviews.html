@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <div class="topnav">
+        <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
+        {%if not session['login'] %}
+        <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
+        {%endif%}
+    </div>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
