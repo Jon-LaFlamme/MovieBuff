@@ -187,10 +187,9 @@ def reviews_create(moviename):
 
     elif request.method == 'POST':
         UserID = request.form.get("UserID")
-        UserReviews = request.form.get("UserReviews")
-        CriticReviews = request.form.get("CriticReviews")
+        Score = request.form.get("Score")
         Review = request.form.get("Review")
-        db.create_review(UserID, UserReviews, CriticReviews, titleId, UserID)
+        db.create_review(UserID, Score, titleId, Review)
         return redirect(url_for('reviews', moviename=titleId))
 
 @app.route('/<moviename>/reviews/<reviewId>/update', methods=['GET','POST'])
@@ -200,10 +199,9 @@ def reviews_update(moviename, reviewId):
         return render_template('reviews_update.html', title = db.query_movieName(titleId)['title'], titleId = titleId, reviewId = reviewId)
     elif request.method == 'POST':
         UserID = request.form.get("UserID")
-        UserReviews = request.form.get("UserReviews")
-        CriticReviews = request.form.get("CriticReviews")
+        Score = request.form.get("Score")
         Review = request.form.get("Review")
-        db.update_review(UserReviews, CriticReviews, UserID, reviewId, Review)
+        db.update_review(Score, UserID, reviewId, Review)
         return redirect(url_for('reviews', moviename=titleId))
     
 

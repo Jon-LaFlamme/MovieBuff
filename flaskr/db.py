@@ -278,23 +278,22 @@ class MoviebuffDB():
         self.close_connection()       
         return {"Number of reviews deleted from database": k}
 
-    #UserID, UserReviews, CriticReviews, TitleID, Review
-    def create_review(self, UserID, UserReviews, CriticReviews, TitleID, Review) -> dict:
+    def create_review(self, UserID, Score, TitleID, Review) -> dict:
         self.connect()
         with self.driver.cursor() as c:
             sql = sqls.create_review
-            num = c.execute(sql, (TitleID, UserReviews, CriticReviews, UserID, UserID))
+            num = c.execute(sql, (TitleID, Score, UserID, UserID))
             sql = sqls.create_reviewtext
-            num = c.execute(sql, (TitleID, UserID, CriticReviews, UserReviews, Review, UserID, UserID)) 
+            num = c.execute(sql, (TitleID, UserID, UserID, Score, Review, UserID, UserID)) 
         self.close_connection()
         return {"Created": True}
 
 
-    def update_review(self, UserReviews, CriticReviews, UserID, ReviewID, Review) -> dict:
+    def update_review(self, Score, UserID, ReviewID, Review) -> dict:
         self.connect()
         with self.driver.cursor() as c:
             sql = sqls.update_review
-            num = c.execute(sql, (UserReviews, CriticReviews, UserID, ReviewID)) 
+            num = c.execute(sql, (Score, UserID, ReviewID)) 
             sql = sqls.update_reviewtext
             num = c.execute(sql, (Review, ReviewID)) 
         self.close_connection()       

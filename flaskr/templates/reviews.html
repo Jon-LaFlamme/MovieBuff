@@ -42,7 +42,7 @@
         <div style="text-align: center; vertical-align: top; flex-grow: 2;justify-content: center">
             <table border="1">
                 <thead>
-                <tr><th>Review Summary</th><th>Author</th><th>User Reviews</th><th>Critic Reviews</th>
+                <tr><th>Review Summary</th><th>Author</th><th>Score</th>
                     <th>Full Review</th><th>Date of Review</th><th>Last Updated</th><th>Update</th><th>Delete</th></tr>
                 </thead>
                 <tbody>
@@ -55,10 +55,7 @@
                         {{ row['CreatedByUserID']}}
                     </td>
                     <td>
-                        {{ row['UserReviews'] }}
-                    </td>
-                    <td>
-                        {{ row['CriticReviews'] }}
+                        {{ row['reviewscore'] }}
                     </td>
                     <td>
                         {{ row['Review'] }}
