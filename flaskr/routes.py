@@ -12,7 +12,7 @@ from flaskr import sqls as sqls
 
 db = MoviebuffDB()
 cosmos_db = MoviebuffCosmos()
-mondgo_db = MongoDB()
+mongo_db = MongoDB()
 
 FAILURE = {'imdb_title_id':"",
         'title':"title not found",
@@ -155,7 +155,7 @@ def search():
         return render_template('base-test-nosql.html')
     else:
         print(request.json, file=sys.stderr)
-        res = mondgo_db.filter_query(request.json)
+        res = mongo_db.filter_query(request.json)
         docs = []
         if res:
             for d in res:
@@ -168,15 +168,13 @@ def search():
     return render_template('base-test-nosql.html')
 
 
-@app.route('/search/title', methods=["GET","POST"])   #MongoDB Testing
-def search_title():
-    data = request.json
-    print(data, file=sys.stderr)
-    moviename = data["Imdb_Title_id"]
+@app.route('/search/<moviename>')   #MongoDB Testing
+def search_title(moviename):
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + moviename + ".jpg"
-    #Clean up the fields
-    principals = data.pop("Principals")
-    data.pop(moviename)
+    
+    title = mongo_db.query_by_id(moviename)     #Fetch Title info, Clean up the fields
+    title.pop(moviename)
+    principals = title.pop("Principals")     
     cast_crew = {}
     for role in principals:
         title = role["category"]
@@ -184,8 +182,29 @@ def search_title():
             cast_crew.update({person["Name"]: title})
     
     print(cast_crew, file=sys.stderr)
-    return render_template('movie-nosql.html', res = json2html.convert(json=data), cast_crew = cast_crew, 
-                        imgurl = imgurl, title = data['title'], titleId = moviename)
+    return render_template('movie-nosql.html', res = json2html.convert(json=title), cast_crew = cast_crew, 
+                        imgurl = imgurl, title = title['title'], titleId = moviename)
+
+@app.route('/search/cast-crew/<name>')   #MongoDB Testing
+def search_person(name):
+    person_details = mongo_db.query_by_person(name)
+    title_ids = person_details['Titles']
+    titles = mongo_db.query_by_id_multiple(title_ids)
+    title_details = {}
+    for t in titles:
+        title_details.update({"Imdb_Title_id": t['Imdb_Title_id']})
+        title_details.update({"title": t['title']})
+        title_details.update({"year": t['year']})
+        principals = t["princpals"]
+        jobs = []
+        for role in principals:    
+            if person in role['Name'] == name:
+                jobs.append(person['category'])
+        title_details.update({"role": jobs})
+
+    #TODO Complete return statement, integrate results to html, test.
+    return render_template('person.html', dbRes = dbRes, titleRes = titleRes)
+
 
 
 @app.route('/<moviename>')

@@ -30,6 +30,13 @@ class MongoDB():
             self.connect()
         return self.db.find_one({'imdb_title_id': s})
 
+
+    def query_by_person(self, name: str) -> dict:
+        """Returns roles and titles for cast/crew member"""
+        if not self.client:
+            self.connect()
+        return self.client.moviebuff.imdbprincipals.find_one({'Name': name})
+
     def filter_query(self, form: dict): #-> cursor object
         """Home Page Big Filter Query:
                 Returns cursor obj that requires iteration to unpack.

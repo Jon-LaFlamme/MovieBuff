@@ -54,7 +54,7 @@
             <tbody>
             {% for person,role in cast_crew.items() %}
             <tr><td>
-                <a href="{{ url_for('person', personname=person }}">
+                <a href="{{ url_for('search_person', name=person }}">
                     {{person}}
                 </a>
             </td>
