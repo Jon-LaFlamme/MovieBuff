@@ -15,7 +15,7 @@
     <link rel = "icon" href =
             "../static/images/MB.svg"
           type = "image/x-icon">
-    <link rel="stylesheet" href="../static/MovieBuffStyle.css">
+    <link rel="stylesheet" href="../../../static/MovieBuffStyle.css">
 
 </head>
 <body style="background-color:black;color:silver">
@@ -23,6 +23,8 @@
     <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
     {%if not session['login'] %}
     <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
+    {%else %}
+    <a href="{{ url_for('logout') }}" style="font-family: papyrus;font-size:25px">Log out</a>
     {%endif%}
 </div>
 <br>
