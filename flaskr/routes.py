@@ -42,6 +42,7 @@ def login():
     if request.method == 'POST':
         if db.login([request.form.get('User'),request.form.get('Password')]):
             session['login'] = True
+            session['userID'] = int(db.getUserID(request.form.get('User')))
             return render_template('base.html')
         else:
             return render_template('login.html', failedLogin = True)
@@ -59,6 +60,7 @@ def newUser():
 @app.route('/Logout')
 def logout():
     session['login'] = False
+    session['userID'] = 0
     return render_template('base.html')
 
 def filterGenre(Genres, res):
@@ -242,7 +244,16 @@ def reviews(moviename):
     titleId = str(moviename)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
     dbRes = db.query_id_reviews(titleId)
-    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId, dbRes = dbRes)
+    reviewed = False
+    avgScore = []
+    for i in dbRes:
+        if i['CreatedByUserID'] == session['userID']:
+            reviewed = True
+        avgScore.append(i['reviewscore'])
+    avgScoreFinal = 0
+    if(len(avgScore)):
+        avgScoreFinal = round(sum(avgScore) / len(avgScore), 1)
+    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId, dbRes = dbRes, reviewed = reviewed, avgScore = avgScoreFinal)
 
 
 @app.route('/<moviename>/reviews/create', methods=['GET','POST'])
@@ -252,7 +263,7 @@ def reviews_create(moviename):
         return render_template('reviews_create.html', title = db.query_movieName(titleId)['title'], titleId = titleId)
 
     elif request.method == 'POST':
-        UserID = request.form.get("UserID")
+        UserID = session['userID']
         Score = request.form.get("Score")
         Review = request.form.get("Review")
         db.create_review(UserID, Score, titleId, Review)
@@ -264,7 +275,7 @@ def reviews_update(moviename, reviewId):
     if request.method == 'GET':
         return render_template('reviews_update.html', title = db.query_movieName(titleId)['title'], titleId = titleId, reviewId = reviewId)
     elif request.method == 'POST':
-        UserID = request.form.get("UserID")
+        UserID = session['userID']
         Score = request.form.get("Score")
         Review = request.form.get("Review")
         db.update_review(Score, UserID, reviewId, Review)
