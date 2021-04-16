@@ -127,10 +127,10 @@ imdb_review_by_reviewId = "SELECT * FROM reviews JOIN reviewtext ON reviews.Revi
 remove_review_by_reviewId = "DELETE FROM reviews WHERE ReviewId = %s"
 remove_reviewtext_by_reviewId = "DELETE FROM reviewtext WHERE ReviewId = %s"
 
-create_review = "INSERT INTO reviews (TitleID, UserReviews, CriticReviews, CreatedByUserID, CreatedByDate, UpdatedByUserID, UpdatedByDate)" + "VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP)"
-create_reviewtext = "INSERT INTO reviewtext (ReviewID, Review, CreatedByUserID, UpdatedByUserID, CreatedByDate, UpdatedByDate)" + "VALUES ((SELECT ReviewID FROM reviews WHERE TitleID = %s AND CreatedByUserID = %s AND CriticReviews = %s AND UserReviews = %s), %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+create_review = "INSERT INTO reviews (TitleID, reviewscore, CreatedByUserID, CreatedByDate, UpdatedByUserID, UpdatedByDate)" + "VALUES (%s, %s, %s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP)"
+create_reviewtext = "INSERT INTO reviewtext (ReviewID, Review, CreatedByUserID, UpdatedByUserID, CreatedByDate, UpdatedByDate)" + "VALUES ((SELECT ReviewID FROM reviews WHERE TitleID = %s AND CreatedByUserID = %s AND UpdatedByUserID = %s AND reviewscore = %s), %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
 
-update_review = "UPDATE reviews SET UserReviews = %s, CriticReviews = %s, UpdatedByUserID = %s, UpdatedByDate = CURRENT_TIMESTAMP WHERE ReviewID = %s"
+update_review = "UPDATE reviews SET reviewscore = %s, UpdatedByUserID = %s, UpdatedByDate = CURRENT_TIMESTAMP WHERE ReviewID = %s"
 update_reviewtext = "UPDATE reviewtext SET Review = %s WHERE ReviewID = %s"
 
 add_user = "INSERT INTO user (UserName, EmailAddress, Password) values (%s, %s, %s)"
