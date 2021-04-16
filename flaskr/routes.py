@@ -149,29 +149,51 @@ def process():
         return render_template('results.html', results = res)
 
 
-@app.route('/search', methods=['GET','POST'])   #Test Route/Page for Stored Proc Call to RDBMS
+@app.route('/search', methods=['GET','POST'])   #MongoDB Testing
 def search():
     if request.method == 'GET':
         return render_template('base-test-nosql.html')
     else:
         print(request.json, file=sys.stderr)
-        res = cosmos_db.query_enhanced(request.json)
-        if not res:
-            res = FAILURE
+        res = mondgo_db.filter_query(request.json)
+        docs = []
+        if res:
+            for d in res:
+                docs.append(d)
+            res = docs
+        else:
+            res = FAILURE   
         print(res, file=sys.stderr)
-        return render_template('results.html', results = [res])  
+        return render_template('results-mongo.html', results = res)  
     return render_template('base-test-nosql.html')
+
+
+@app.route('/search/title', methods=["GET","POST"])   #MongoDB Testing
+def search_title():
+    data = request.json
+    print(data, file=sys.stderr)
+    moviename = data["Imdb_Title_id"]
+    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + moviename + ".jpg"
+    #Clean up the fields
+    principals = data.pop("Principals")
+    data.pop(moviename)
+    cast_crew = {}
+    for role in principals:
+        title = role["category"]
+        for person in role['Name']:
+            cast_crew.update({person["Name"]: title})
+    
+    print(cast_crew, file=sys.stderr)
+    return render_template('movie-nosql.html', res = json2html.convert(json=data), cast_crew = cast_crew, 
+                        imgurl = imgurl, title = data['title'], titleId = moviename)
+
 
 @app.route('/<moviename>')
 def movie(moviename):
     titleId = str(moviename)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
-    
-    dbRes = None
-    res = mondgo_db.query_by_id(titleId)
-    print("\n cosmosDB results: "+ str(res) + "\n", file=sys.stderr)
 
-    #dbRes = db.query_id(titleId)   Note: need to port to noSQL/MongoDB from here forward on document pulls by id
+    dbRes = db.query_id(titleId)  
     if(dbRes):
         remove = []
         for i in dbRes.keys():
@@ -214,12 +236,14 @@ def movie(moviename):
         return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names, 
                         imgurl = imgurl, title = dbRes['title'], titleId = titleId)
 
+
 @app.route('/<moviename>/reviews')
 def reviews(moviename):
     titleId = str(moviename)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
     dbRes = db.query_id_reviews(titleId)
     return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId, dbRes = dbRes)
+
 
 @app.route('/<moviename>/reviews/create', methods=['GET','POST'])
 def reviews_create(moviename):

@@ -1,0 +1,44 @@
+Notes: To support 
+
+titles:
+
+{
+   " _id" : auto-gen
+   "imbdb_title_id" : Str
+   "title": String
+   "year":  int
+   "genre" :    [String, ..., String]
+   "language":   [String, ..., String]
+   "duration":   int
+   "production_company":    String
+   "avg_vote":  float
+   "description": text
+   "num_reviews": {
+        "user"      int
+        "critic":   int
+   }
+   "streaming": {
+       "Netflix":   Boolean
+       "Hulu":      Boolean
+       "Prime":     Boolean
+       "Disney":    Booolean
+   }
+   "principals": {
+        "actress":  [{"name": "unique_id}, {"name": "unique_id}]
+        "actor":    [{"name": "unique_id}, {"name": "unique_id}]
+        "cinematographer":  [{"name": "unique_id}, {"name": "unique_id}]
+        "director":     [{"name": "unique_id}, {"name": "unique_id}]
+        "producer":     [{"name": "unique_id}, {"name": "unique_id}]
+        "composer":     [{"name": "unique_id}, {"name": "unique_id}]
+        "writer":       [{"name": "unique_id}, {"name": "unique_id}]
+        "editor":       [{"name": "unique_id}, {"name": "unique_id}]
+        "production_designer":      [{"name": "unique_id}, {"name": "unique_id}]
+        "archive_sound":        [{"name": "unique_id}, {"name": "unique_id}]
+        "archive_footage":      [{"name": "unique_id}, {"name": "unique_id}]
+        "self":     [{"name": "unique_id}, {"name": "unique_id}]
+    }
+    "budget":   int
+    "USAIncome":    int
+    "WorldWideIncome":      int
+}
+

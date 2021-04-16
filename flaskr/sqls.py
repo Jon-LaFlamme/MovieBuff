@@ -80,21 +80,19 @@ def update_review(form: dict) -> tuple:
 def clean_filters(form: dict) -> dict:
     '''Process filter fields'''
     if(len(form['languages']) == 19):
-        form['languages'] = "NULL"
+        form['languages'] = None
     else:
         form['languages'] = [item for sublist in form['languages'] for item in sublist] #flatten list
     if(len(form['genres']) == 17):
-        form['genres'] = "NULL"
+        form['genres'] = None
     else:
         form['genres'] = [item for sublist in form['genres'] for item in sublist] #flatten list
-    if(len(form['streaming_services']) == 4):
-         form['streaming_services'] = "Null"
     if(form['yearStart']=='1900' and form['yearEnd']=='2021'):
-        form['yearStart'] = "NULL"
-        form['yearEnd'] = "NULL"
+        form['yearStart'] = None
+        form['yearEnd'] = None
     if (form['imdbStart']=='0' and form['imdbEnd']=='10'):
-        form['imdbStart'] = "NULL"
-        form['imdbEnd'] = "NULL"
+        form['imdbStart'] = None
+        form['imdbEnd'] = None
     form.pop('rottenStart')
 
     return form

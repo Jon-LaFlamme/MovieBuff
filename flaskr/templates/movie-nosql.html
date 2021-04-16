@@ -52,13 +52,13 @@
             <tr><th>Cast & Crew</th><th>Position</th></tr>
             </thead>
             <tbody>
-            {% for k,v in nmRes.items() %}
+            {% for person,role in cast_crew.items() %}
             <tr><td>
-                <a href="{{ url_for('person', personname=i['imdb_title_id'])  }}">
-                    {{names[i['imdb_title_id']]}}
+                <a href="{{ url_for('person', personname=person }}">
+                    {{person}}
                 </a>
             </td>
-                <td>{{i['category']}}</td>
+                <td>{{role}}</td>
             </tr>
             {%endfor%}
             </tbody>
