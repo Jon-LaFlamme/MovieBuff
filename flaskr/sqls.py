@@ -80,21 +80,19 @@ def update_review(form: dict) -> tuple:
 def clean_filters(form: dict) -> dict:
     '''Process filter fields'''
     if(len(form['languages']) == 19):
-        form['languages'] = "NULL"
+        form['languages'] = None
     else:
         form['languages'] = [item for sublist in form['languages'] for item in sublist] #flatten list
     if(len(form['genres']) == 17):
-        form['genres'] = "NULL"
+        form['genres'] = None
     else:
         form['genres'] = [item for sublist in form['genres'] for item in sublist] #flatten list
-    if(len(form['streaming_services']) == 4):
-         form['streaming_services'] = "Null"
     if(form['yearStart']=='1900' and form['yearEnd']=='2021'):
-        form['yearStart'] = "NULL"
-        form['yearEnd'] = "NULL"
+        form['yearStart'] = None
+        form['yearEnd'] = None
     if (form['imdbStart']=='0' and form['imdbEnd']=='10'):
-        form['imdbStart'] = "NULL"
-        form['imdbEnd'] = "NULL"
+        form['imdbStart'] = None
+        form['imdbEnd'] = None
     form.pop('rottenStart')
 
     return form
@@ -129,10 +127,10 @@ imdb_review_by_reviewId = "SELECT * FROM reviews JOIN reviewtext ON reviews.Revi
 remove_review_by_reviewId = "DELETE FROM reviews WHERE ReviewId = %s"
 remove_reviewtext_by_reviewId = "DELETE FROM reviewtext WHERE ReviewId = %s"
 
-create_review = "INSERT INTO reviews (TitleID, UserReviews, CriticReviews, CreatedByUserID, CreatedByDate, UpdatedByUserID, UpdatedByDate)" + "VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP)"
-create_reviewtext = "INSERT INTO reviewtext (ReviewID, Review, CreatedByUserID, UpdatedByUserID, CreatedByDate, UpdatedByDate)" + "VALUES ((SELECT ReviewID FROM reviews WHERE TitleID = %s AND CreatedByUserID = %s AND CriticReviews = %s AND UserReviews = %s), %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+create_review = "INSERT INTO reviews (TitleID, reviewscore, CreatedByUserID, CreatedByDate, UpdatedByUserID, UpdatedByDate)" + "VALUES (%s, %s, %s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP)"
+create_reviewtext = "INSERT INTO reviewtext (ReviewID, Review, CreatedByUserID, UpdatedByUserID, CreatedByDate, UpdatedByDate)" + "VALUES ((SELECT ReviewID FROM reviews WHERE TitleID = %s AND CreatedByUserID = %s AND UpdatedByUserID = %s AND reviewscore = %s), %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
 
-update_review = "UPDATE reviews SET UserReviews = %s, CriticReviews = %s, UpdatedByUserID = %s, UpdatedByDate = CURRENT_TIMESTAMP WHERE ReviewID = %s"
+update_review = "UPDATE reviews SET reviewscore = %s, UpdatedByUserID = %s, UpdatedByDate = CURRENT_TIMESTAMP WHERE ReviewID = %s"
 update_reviewtext = "UPDATE reviewtext SET Review = %s WHERE ReviewID = %s"
 
 add_user = "INSERT INTO user (UserName, EmailAddress, Password) values (%s, %s, %s)"

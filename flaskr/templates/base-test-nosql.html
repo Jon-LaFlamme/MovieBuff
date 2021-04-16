@@ -11,7 +11,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     {{ JSGlue.include() }}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" type="text/css"/>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <title>MovieBuff</title>
     <link rel = "icon" href =
@@ -21,31 +21,45 @@
 
 </head>
 <body style="background-color:black;color:silver">
+
 <div class="topnav">
-    <a class="active" href="{{ url_for('search') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
+    <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
     {%if not session['login'] %}
     <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
     {%else %}
     <a href="{{ url_for('logout') }}" style="font-family: papyrus;font-size:25px">Log out</a>
     {%endif%}
-    <form action="{{ url_for('search') }}" method="POST">
-        <input type="text" name="Title" placeholder="Search..">
-    </form>
+
 </div>
 <br>
+
+<style>
+    .searchResults__result h4 {
+        left:300px;
+        margin-top: 0px;
+        text-transform: uppercase;
+    }
+
+    .searchResults__result .resultDescription {
+        margin: 0.5em 0 0 0;
+        left:300px;
+    }
+</style>
+
+<!-- SQL Filter/Order page design class="row justify-content-center" class="col text-center"-->
 <div class="container">
     <script>
         var services, selectedServices, languages, selectedLanguages, genres, selectedGenres;
     </script>
     <div class="row justify-content-center">
-        <div class="col text-center">
+        <div class="col text-begin">
             <div class="dropdown">
                 <div class="btn-group">
                     <select id="multiselect2" multiple="multiple">
                         <option value="1">Netflix</option>
-                        <option value="2">Prime Video</option>
+                        <option value="2">Prime</option>
                         <option value="3">Hulu</option>
-                        <option value="4">Disney+</option>
+                        <option value="4">Disney</option>
                     </select>
                     <script type="text/javascript">
                             $(document).ready(function() {
@@ -71,13 +85,6 @@
                                         });
                                     }
                                 });
-                                $("#multiselect2").multiselect('selectAll', false);
-                                $("#multiselect2").multiselect('updateButtonText');
-                                services = $('#multiselect2 option:selected');
-                                        selectedServices = [];
-                                        $(services).each(function(index, services){
-                                            selectedServices.push([$(this).text()]);
-                                        });
                             });
                      </script>
                 </div>
@@ -272,7 +279,17 @@
                     document.getElementById('sortSelection'))" style="background-color:#fff; color:#0069d9">
                         Go
                     </button>
-                </div>
+                </div>  
+                <span id="searchBox" class="FTS"></span>
+                <style>
+                    .FTS{
+                        height: 70%; /* 100% Full-height */
+                        width: 395px; /* 0 width - change this with JavaScript */
+                        position: fixed; /* Stay in place */
+                        right:1px;
+                        }
+                </style>
+
                 <script>
                     function showResults(yearRange, imdbRange, sort) {
                         var sortingMethod, year, imdb;
@@ -301,7 +318,7 @@
                         'imdbStart' : imdb[0],
                         'imdbEnd' : imdb[1],
                         'sorting' : realSortingMethod,
-                    //    'streaming' : selectedServices,
+                        'streaming' : selectedServices,
                         'genres' : selectedGenres
                         }
 
@@ -325,15 +342,183 @@
         <br><br><br>
 
     </div>
-
     <div class="row justify-content-center" id="txtHint">Movie info will be listed here...</div>
 
 </div>
 
+<!-- Full Text Search page design elements -->
+    <!-- Collapsible sidepanel for Full Text Search Filters -->
+    <div id="Facets" class="sidepanel"> 
+        <a href="javascript:void(0)" title="Hide Filters" class="closebtn" style="padding-left: 10px" onclick="closeNav()">&#9664;</a>
+        <a>Text Search Filters</a> 
+        <a href="javascript:void(0)" style="padding-left: 1px" onclick="openNav()" class="openbtn" title="Show Filters">&#9654;</a>
+    </div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div id="mySidenav" class="sidenav">
+            
+            <div id="clearFilters"></div>
+                <ul class="nav nav-sidebar">
+                    <div className="panel panel-primary behclick-panel">
+                        
+                        <li>
+                            <div id="genreFacet">
+                            </div>
+                        </li>
+                        <li>
+                            <div id="languageFacet">
+                            </div>
+                        </li>
+                    </div>
+                </ul>
+        </div>
+    
+        <div>
+            <div id="results" class="row placeholders">
+            </div>
+            <div id="pager" class="row col-sm-3 col-md-offset-30" >pager offset</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .sidenav {
+      height: 100%; /* 100% Full-height */
+      width: 0; /* 0 width - change this with JavaScript */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Stay on top */
+      top: 20; /* Stay at the top */
+      left: 0;
+      background-color: black; /* Black*/
+      overflow-x: hidden; /* Disable horizontal scroll */
+      padding-top:100px; /* Place content 60px from the top */
+      transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+      border-style: outset;
+      border-color: rgb(3, 46, 139);
+      border-left: 3px;
+    }
+    
+    /* The navigation menu links */
+    .sidenav a {
+      padding: 8px 8px 8px 32px;
+      text-decoration: none;
+      font-size: 25px;
+      color: #818181;
+      display: block;
+      transition: 0.3s;
+    }
+    
+    /* When you mouse over the navigation links, change their color */
+    .sidenav a:hover {
+      color: #f1f1f1;
+    }
+    
+    /* Position and style the close button (top right corner) */
+    .sidenav .closebtn {
+      position: absolute;
+      top: 250;
+      right: 25px;
+      font-size: 16px;
+      margin-left: 50px;
+    }
+    
+    /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+    #main {
+      transition: margin-left .5s;
+      padding: 20px;
+    }
+    
+    /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+    @media screen and (max-height: 450px) {
+      .sidenav {padding-top: 15px;}
+      .sidenav a {font-size: 18px;}
+    }
+    </style>
+    <script>
+    /* Set the width of the side navigation to 250px */
+    function openNav() {
+      document.getElementById("mySidenav").style.width = "350px";
+    }
+    
+    /* Set the width of the side navigation to 0 */
+    function closeNav() {
+      document.getElementById("mySidenav").style.width = "0";
+    }
+    </script>
 
 
+<!-- Dependencies -->
+<script src="https://cdn.jsdelivr.net/react/15.5.0/react.min.js"></script>
+<script src="https://cdn.jsdelivr.net/react/15.5.0/react-dom.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/redux/3.6.0/redux.min.js"></script>
+<!-- Main -->
+<script src="https://cdn.jsdelivr.net/npm/azsearch.js@0.0.21/dist/AzSearch.bundle.js"></script>
+<script>
+    // WARNING
+    // For demonstration purposes only, do not use in a production environment. For simplicity, this is a single HTML page that has the query key to the search service.
+    // CORS (*) must be enabled in the index before using the demo app.
+
+    // Initialize and connect to your search service
+    var automagic = new AzSearch.Automagic({ index: "suggester-index-sample", queryKey: "3C3E9F84B7AA8460AB89519711D0CF29", service: "moviebuffsearch" });
+    // TODO: In resultTemplate, make href link clickable to results page 
+    {% raw %}
+    const resultTemplate = `<div class="res">
+                            <hr style="width:40%;text-align:left;margin-left:0; margin-top:10; background-color:white">
+                            <a href="/{{{imdb_title_id}}}"><h4>{{{title}}}</h4></a>
+                            <div class="resultDescription">{{{description}}}</div>
+                            </div>
+                            <style>
+                                .res{
+                                    padding-left: 400px;
+                                    padding-right:600px;
+                                    }
+                            </style>`;
+    {% endraw %}
+    // add a results view using the template defined above
+    automagic.addResults("results", { count: true }, resultTemplate);
+
+    // Adds a pager control << 1 2 3 ... >>
+    automagic.addPager("pager");
+    
+    // Set some processors to format results for display
+    var suggestionsProcessor = function (results) {
+        return results.map(function (result) {
+            result.searchText = result["@search.text"];
+            return result;
+        });
+    };
+
+    automagic.store.setSuggestionsProcessor(suggestionsProcessor);
+    
+    {% raw %}
+    var suggestionsTemplate = `
+            <p style="color:blue;  background-color:white; z-index: 9;"> Title: {{{title}}} </p> {{{searchText}}}
+            `;
+    {% endraw %}
+    // Add a search box that uses suggester "suggester-1", grabbing some additional fields to display during suggestions. Use the template defined above
+    automagic.addSearchBox("searchBox",
+        {
+            highlightPreTag: "<p>",
+            highlightPostTag: "</p>",
+            suggesterName: "suggester-1",
+            select: "title"
+        },
+        "",
+        suggestionsTemplate);
+    
+    automagic.addCheckboxFacet("genreFacet", "genre", "string");
+    automagic.addCheckboxFacet("languageFacet", "language", "string");
 
 
+    // Adds a button to clear any applied filters
+    automagic.addClearFiltersButton("clearFilters");
 
-</body>
+
+</script>
+
+<style>
+</style>
+
 </html>

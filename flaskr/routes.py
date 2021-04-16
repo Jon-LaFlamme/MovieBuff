@@ -4,13 +4,26 @@ from json2html import *
 from flaskr.forms import Title
 from flaskr.db import MoviebuffDB
 from flaskr.cosmos import MoviebuffCosmos
-#from flaskr import validate as validate
+from flaskr.mongo import MongoDB
+
 from flaskr import app
 import json
 from flaskr import sqls as sqls
 
 db = MoviebuffDB()
 cosmos_db = MoviebuffCosmos()
+mondgo_db = MongoDB()
+
+FAILURE = {'imdb_title_id':"",
+        'title':"title not found",
+        'year':"N/A",
+        'genre':"N/A",
+        'language':"N/A",
+        'avg_vote':'N/A',
+        'Netflix':"N/A",
+        'Hulu':"N/A",
+        'Prime':"N/A",
+        'Disney':"N/A"}
 
 @app.route('/', methods=['GET','POST'])  #Basic Title Search/Home Page
 def home():
@@ -136,34 +149,51 @@ def process():
         return render_template('results.html', results = res)
 
 
-@app.route('/search', methods=['GET','POST'])   #Test Route/Page for Stored Proc Call to RDBMS
+@app.route('/search', methods=['GET','POST'])   #MongoDB Testing
 def search():
     if request.method == 'GET':
         return render_template('base-test-nosql.html')
     else:
         print(request.json, file=sys.stderr)
-        res = cosmos_db.query_enhanced(request.json)
-        if not res:
-            res = {}
-            res['imdb_title_id'] = "tt0000009"
-            res['title'] = "No results found"
-            res['year'] = "N/A"
-            res['genre'] = "N/A"
-            res['language'] = "N/A"
-            res['avg_vote'] = 'N/A'
-            res['Netflix'] = "N/A"
-            res['Hulu'] = "N/A"
-            res['Prime'] = "N/A"
-            res['Disney'] = "N/A"
+        res = mondgo_db.filter_query(request.json)
+        docs = []
+        if res:
+            for d in res:
+                docs.append(d)
+            res = docs
+        else:
+            res = FAILURE   
         print(res, file=sys.stderr)
-        return render_template('results.html', results = [res])  
+        return render_template('results-mongo.html', results = res)  
     return render_template('base-test-nosql.html')
+
+
+@app.route('/search/title', methods=["GET","POST"])   #MongoDB Testing
+def search_title():
+    data = request.json
+    print(data, file=sys.stderr)
+    moviename = data["Imdb_Title_id"]
+    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + moviename + ".jpg"
+    #Clean up the fields
+    principals = data.pop("Principals")
+    data.pop(moviename)
+    cast_crew = {}
+    for role in principals:
+        title = role["category"]
+        for person in role['Name']:
+            cast_crew.update({person["Name"]: title})
+    
+    print(cast_crew, file=sys.stderr)
+    return render_template('movie-nosql.html', res = json2html.convert(json=data), cast_crew = cast_crew, 
+                        imgurl = imgurl, title = data['title'], titleId = moviename)
+
 
 @app.route('/<moviename>')
 def movie(moviename):
     titleId = str(moviename)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
-    dbRes = db.query_id(titleId)
+
+    dbRes = db.query_id(titleId)  
     if(dbRes):
         remove = []
         for i in dbRes.keys():
@@ -175,8 +205,36 @@ def movie(moviename):
         names = dict()
         for i in nmRes:
             names[i['imdb_title_id']] = db.query_rName(str(i['imdb_title_id']))[0]['name']
-    return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names, 
-                    imgurl = imgurl, title = dbRes['title'], titleId = titleId)
+        return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names, 
+                        imgurl = imgurl, title = dbRes['title'], titleId = titleId)
+    else:
+        if res:
+            #Testing: This title image verified in Datastore: try Intolerance (tt00006864)
+            dbRes = res
+            remove_fields = ["_id", "reviews_from_critics", "reviews_from_users",
+                             "original_title", "date_published"]
+            swaps = ["writer", "director", "actors"]
+            cast_crew = {}
+
+            for field in remove_fields:
+                if field in dbRes:
+                    dbRes.pop(field)
+            for field in swaps:
+                cast_crew[field] = dbRes.pop(field)
+            for k,v in dbRes.items():
+                if not v:
+                    dbRes[k] = "N/A"
+            
+            nmRes = db.query_nm(str(moviename))
+            names = dict()
+            for i in nmRes:
+                names[i['imdb_title_id']] = db.query_rName(str(i['imdb_title_id']))[0]['name']
+
+        else:
+            dbRes = FAILURE
+            dbRes['imdb_title_id'] = moviename
+        return render_template('movie.html', res = json2html.convert(json=dbRes), nmRes = nmRes, names = names, 
+                        imgurl = imgurl, title = dbRes['title'], titleId = titleId)
 
 
 @app.route('/<moviename>/reviews')
@@ -186,6 +244,7 @@ def reviews(moviename):
     dbRes = db.query_id_reviews(titleId)
     return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId, dbRes = dbRes)
 
+
 @app.route('/<moviename>/reviews/create', methods=['GET','POST'])
 def reviews_create(moviename):
     titleId = str(moviename)
@@ -194,10 +253,9 @@ def reviews_create(moviename):
 
     elif request.method == 'POST':
         UserID = request.form.get("UserID")
-        UserReviews = request.form.get("UserReviews")
-        CriticReviews = request.form.get("CriticReviews")
+        Score = request.form.get("Score")
         Review = request.form.get("Review")
-        db.create_review(UserID, UserReviews, CriticReviews, titleId, UserID)
+        db.create_review(UserID, Score, titleId, Review)
         return redirect(url_for('reviews', moviename=titleId))
 
 @app.route('/<moviename>/reviews/<reviewId>/update', methods=['GET','POST'])
@@ -207,10 +265,9 @@ def reviews_update(moviename, reviewId):
         return render_template('reviews_update.html', title = db.query_movieName(titleId)['title'], titleId = titleId, reviewId = reviewId)
     elif request.method == 'POST':
         UserID = request.form.get("UserID")
-        UserReviews = request.form.get("UserReviews")
-        CriticReviews = request.form.get("CriticReviews")
+        Score = request.form.get("Score")
         Review = request.form.get("Review")
-        db.update_review(UserReviews, CriticReviews, UserID, reviewId, Review)
+        db.update_review(Score, UserID, reviewId, Review)
         return redirect(url_for('reviews', moviename=titleId))
     
 
@@ -240,14 +297,11 @@ def person(personname):
     return render_template('person.html', dbRes = dbRes, titleRes = titleRes)
 
 
-@app.route('/quick-search')
-def quick_search():
-    return render_template('FullTextSearch.html')
 
-
-@app.route('/cosmos-lookup', methods=['GET','POST'])
+@app.route('/title-fetch/<title_id>', methods=['GET','POST'])
 def cosmos_lookup():
     if request.method == 'GET':
+        res = cosmos_db.query_enhanced(title_id)
         return render_template('basic-title-search.html')
     else:
         res = cosmos_db.query_enhanced(request.form['_id'])[0]

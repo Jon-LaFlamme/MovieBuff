@@ -3,9 +3,11 @@
 
 from flaskr.db import MoviebuffDB
 from flaskr.cosmos import MoviebuffCosmos
+from flaskr.mongo import MongoDB
 
 db = MoviebuffDB()
 cosmos_db = MoviebuffCosmos()
+mongo_db = MongoDB()
 
 
 

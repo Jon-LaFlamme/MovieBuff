@@ -1,0 +1,32 @@
+<table border="1">
+    <thead>
+        <script src="path/to/jquery.min.js" type="text/javascript"></script>
+        <script language="javascript"> 
+            function GetMovieDetails(){
+               $.post("http://127.0.0.1:5000/search/title", i); 
+            }
+         </script>
+    <tr>
+        <th>Title</th>
+        <th>Year</th>
+        <th>Genre</th>
+        <th>Language</th>
+        <th>Rating</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for i in results %}
+    <tr><td>
+        <a href="javascript:GetMovieDetails()">
+            {{i['title']}}
+        </a>
+        </td>
+        <td>{{i['year']}}</td>
+        <td>{{i['genre']}}</td>
+        <td>{{i['language']}}</td>
+        <td>{{i['avg_vote']}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+

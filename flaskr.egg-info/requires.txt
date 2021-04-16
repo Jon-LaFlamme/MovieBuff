@@ -5,3 +5,5 @@ pymysql
 wtforms_jsonschema2
 json2html
 azure.cosmos
+pymongo
+dnspython
