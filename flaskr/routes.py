@@ -5,7 +5,8 @@ from flaskr.forms import Title
 from flaskr.db import MoviebuffDB
 from flaskr.cosmos import MoviebuffCosmos
 from flaskr.mongo import MongoDB
-
+from chatterbot import ChatBot
+from chatterbot.trainers import ChatterBotCorpusTrainer
 from flaskr import app
 import json
 from flaskr import sqls as sqls
@@ -25,6 +26,18 @@ FAILURE = {'imdb_title_id':"",
         'Prime':"N/A",
         'Disney':"N/A"}
 
+
+bot = ChatBot("Candice")
+
+trainer = ChatterBotCorpusTrainer(bot)
+trainer.train("chatterbot.corpus.english")
+
+# Train based on english greetings corpus
+trainer.train("chatterbot.corpus.english.greetings")
+
+# Train based on the english conversations corpus
+trainer.train("chatterbot.corpus.english.conversations")
+
 @app.route('/', methods=['GET','POST'])  #Basic Title Search/Home Page
 def home():
     if request.method == 'GET':
@@ -34,6 +47,15 @@ def home():
         res = db.query_basic(query)
         return json2html.convert(json=res)
 
+@app.route('/__Candice', methods=['GET','POST'])  #Basic Title Search/Home Page
+def Candice():
+    if request.method == 'GET':
+        return render_template('candice.html')
+
+@app.route('/getChat')
+def get_bot_response():
+    userText = request.args.get('msg')
+    return str(bot.get_response(userText))
 
 @app.route('/Login', methods=['GET','POST'])
 def login():
@@ -317,3 +339,5 @@ def cosmos_lookup():
     else:
         res = cosmos_db.query_enhanced(request.form['_id'])[0]
         return render_template('results.html', results = [res])
+
+

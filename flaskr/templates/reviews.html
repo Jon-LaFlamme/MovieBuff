@@ -21,6 +21,7 @@
 <body style="background-color:black;color:silver">
 <div class="topnav">
     <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
+    <a href="{{ url_for('Candice') }}" style="font-family: papyrus;font-size:25px">Chatbot</a>
     {%if not session['login'] %}
     <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
     {%else %}
