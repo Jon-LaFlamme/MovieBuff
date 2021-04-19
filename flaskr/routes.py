@@ -154,7 +154,6 @@ def search():
     if request.method == 'GET':
         return render_template('base-test-nosql.html')
     else:
-        print(request.json, file=sys.stderr)
         res = mongo_db.filter_query(request.json)
         docs = []
         if res:
@@ -163,47 +162,50 @@ def search():
             res = docs
         else:
             res = FAILURE   
-        print(res, file=sys.stderr)
         return render_template('results-mongo.html', results = res)  
     return render_template('base-test-nosql.html')
 
 
-@app.route('/search/<moviename>')   #MongoDB Testing
+@app.route('/search/<moviename>')   #MongoDB
 def search_title(moviename):
-    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + moviename + ".jpg"
-    
-    title = mongo_db.query_by_id(moviename)     #Fetch Title info, Clean up the fields
-    title.pop(moviename)
-    principals = title.pop("Principals")     
-    cast_crew = {}
+    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + moviename + ".jpg" 
+    title = mongo_db.query_by_id(moviename)    
+    title.pop("Imdb_Title_id")
+    title.pop("_id")
+    principals = title.pop("Principals")   
+    cast_crew = []
     for role in principals:
-        title = role["category"]
-        for person in role['Name']:
-            cast_crew.update({person["Name"]: title})
-    
-    print(cast_crew, file=sys.stderr)
+        job = role["category"]
+        names = role['name']
+        for person in names:
+            cast_crew.append((person["name"], job))
     return render_template('movie-nosql.html', res = json2html.convert(json=title), cast_crew = cast_crew, 
                         imgurl = imgurl, title = title['title'], titleId = moviename)
 
-@app.route('/search/cast-crew/<name>')   #MongoDB Testing
+@app.route('/search/cast-crew/<name>')   #MongoDB
 def search_person(name):
     person_details = mongo_db.query_by_person(name)
-    title_ids = person_details['Titles']
-    titles = mongo_db.query_by_id_multiple(title_ids)
-    title_details = {}
-    for t in titles:
-        title_details.update({"Imdb_Title_id": t['Imdb_Title_id']})
-        title_details.update({"title": t['title']})
-        title_details.update({"year": t['year']})
-        principals = t["princpals"]
-        jobs = []
-        for role in principals:    
-            if person in role['Name'] == name:
-                jobs.append(person['category'])
-        title_details.update({"role": jobs})
+    print(person_details, file=sys.stderr)
+    titles = mongo_db.query_person_titles(name)     #titles -> cursor object iterable
+    person_all_roles = []
+    person_title_role = {}
+    for t in titles:       
+        person_title_role = {"Imdb_Title_id": t["Imdb_Title_id"],
+                            "title": t['title'],
+                             "year": t['year']}
+        principals = t["Principals"]
+        for role in principals:
+            names = role['name']
+            print(names, file=sys.stderr)    
+            for n in names:
+                if n['name'] == name:
+                    person_title_role.update({"category": role['category']})
+                    print(person_title_role, file=sys.stderr)
+                    person_all_roles.append(person_title_role)
 
-    #TODO Complete return statement, integrate results to html, test.
-    return render_template('person.html', dbRes = dbRes, titleRes = titleRes)
+    print(person_all_roles, file=sys.stderr)
+
+    return render_template('person-mongo.html', title_details = person_all_roles, person = person_details)
 
 
 

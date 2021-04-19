@@ -11,7 +11,7 @@
     <tbody>
     {% for i in results %}
     <tr><td>
-        <a href="{{url_for('serach_movie', moviename=i['imdb_title_id'])}}">
+        <a href="{{url_for('search_title', moviename=i['Imdb_Title_id'])}}">
             {{i['title']}}
         </a>
         </td>
@@ -23,3 +23,6 @@
     {%endfor%}
     </tbody>
 </table>
+<div></div>
+<div></div>
+<div></div>

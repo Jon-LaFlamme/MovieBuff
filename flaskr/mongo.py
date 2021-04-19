@@ -24,33 +24,32 @@ class MongoDB():
         self.client.close()
         self.client = None
 
-    def query_by_id(self, s: str) -> dict:
+    def query_by_id(self, title: str) -> dict:
         """Simple title Fetch by IMDB"""
         if not self.client:
             self.connect()
-        return self.db.find_one({'imdb_title_id': s})
+        return self.db.find_one({'Imdb_Title_id': title})
 
+    def query_person_titles(self, name: str): #-> cursor object
+        """Fetches Titles a person was in"""
+        if not self.client:
+            self.connect()
+        query = templates.query_titles_by_person(name)
+        return self.db.find(query)
 
     def query_by_person(self, name: str) -> dict:
         """Returns roles and titles for cast/crew member"""
         if not self.client:
             self.connect()
-        return self.client.moviebuff.imdbprincipals.find_one({'Name': name})
+        return self.client.moviebuff.castcrew.find_one({'Name': name})
 
     def filter_query(self, form: dict): #-> cursor object
-        """Home Page Big Filter Query:
-                Returns cursor obj that requires iteration to unpack.
-                Suggest iterate into list for pagination of results"""
+        """Home Page multiple filter and order query"""
         if not self.client:
             self.connect()
         query = templates.filter_query(form)
-        print("this is the full query")
-        print(query)
+        # print("this is the full query")
+        # print(query)
         return self.db.find(query).limit(25)
 
-
-#sample sql for reference:
-#select imdb_title_id, title, year, genre, language, avg_vote, Netflix, Hulu, Prime, Disney 
-# from imdblist, streaming where imdblist.title = streaming.STitle and year >= %s 
-# and year <= %s and avg_vote >= %s and avg_vote <= %s and (Netflix = 1) order by avg_vote desc
 
