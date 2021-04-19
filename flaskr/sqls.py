@@ -137,6 +137,10 @@ add_user = "INSERT INTO user (UserName, EmailAddress, Password) values (%s, %s, 
 
 login = "SELECT COUNT(*) FROM user WHERE UserName = %s AND Password = %s"
 
+getUserNameCount = "SELECT COUNT(*) FROM user where UserName = %s"
+
+getUserID = "SELECT UserID from user where UserName = %s"
+
 name = "SELECT imdb_title_id, category FROM imdbprincipals WHERE imdb_name = %s"
 
 realName = "SELECT name FROM imdbnames WHERE imdb_name = %s"

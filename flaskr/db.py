@@ -187,12 +187,27 @@ class MoviebuffDB():
             else:
                 return False
 
+    def getUserID(self, query: str):
+        if not self.driver:
+            self.connect()
+        sql = sqls.getUserID
+        res = {"Query result": 0}
+        with self.driver.cursor() as c:
+            c.execute(sql, query)
+            res = c.fetchone()
+        return res['UserID']
+
     def addUser(self, userInfo):
         if not self.driver:
             self.connect()
         sql = sqls.add_user
+        res = {"Query result": 0}
         with self.driver.cursor() as c:
             try:
+                c.execute(sqls.getUserNameCount, userInfo[0])
+                res = c.fetchone()
+                if (res['COUNT(*)'] >= 1):
+                    return False
                 c.execute(sql, (userInfo[0], userInfo[1], hashlib.md5(userInfo[2].encode()).hexdigest()))
                 self.driver.commit()
             except:

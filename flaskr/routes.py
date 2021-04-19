@@ -5,7 +5,8 @@ from flaskr.forms import Title
 from flaskr.db import MoviebuffDB
 from flaskr.cosmos import MoviebuffCosmos
 from flaskr.mongo import MongoDB
-
+from chatterbot import ChatBot
+from chatterbot.trainers import ChatterBotCorpusTrainer
 from flaskr import app
 import json
 from flaskr import sqls as sqls
@@ -25,6 +26,18 @@ FAILURE = {'imdb_title_id':"",
         'Prime':"N/A",
         'Disney':"N/A"}
 
+
+bot = ChatBot("Candice")
+
+trainer = ChatterBotCorpusTrainer(bot)
+trainer.train("chatterbot.corpus.english")
+
+# Train based on english greetings corpus
+trainer.train("chatterbot.corpus.english.greetings")
+
+# Train based on the english conversations corpus
+trainer.train("chatterbot.corpus.english.conversations")
+
 @app.route('/', methods=['GET','POST'])  #Basic Title Search/Home Page
 def home():
     if request.method == 'GET':
@@ -34,6 +47,15 @@ def home():
         res = db.query_basic(query)
         return json2html.convert(json=res)
 
+@app.route('/__Candice', methods=['GET','POST'])  #Basic Title Search/Home Page
+def Candice():
+    if request.method == 'GET':
+        return render_template('candice.html')
+
+@app.route('/getChat')
+def get_bot_response():
+    userText = request.args.get('msg')
+    return str(bot.get_response(userText))
 
 @app.route('/Login', methods=['GET','POST'])
 def login():
@@ -42,6 +64,7 @@ def login():
     if request.method == 'POST':
         if db.login([request.form.get('User'),request.form.get('Password')]):
             session['login'] = True
+            session['userID'] = int(db.getUserID(request.form.get('User')))
             return render_template('base.html')
         else:
             return render_template('login.html', failedLogin = True)
@@ -59,6 +82,7 @@ def newUser():
 @app.route('/Logout')
 def logout():
     session['login'] = False
+    session['userID'] = 0
     return render_template('base.html')
 
 def filterGenre(Genres, res):
@@ -263,7 +287,16 @@ def reviews(moviename):
     titleId = str(moviename)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
     dbRes = db.query_id_reviews(titleId)
-    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId, dbRes = dbRes)
+    reviewed = False
+    avgScore = []
+    for i in dbRes:
+        if i['CreatedByUserID'] == session['userID']:
+            reviewed = True
+        avgScore.append(i['reviewscore'])
+    avgScoreFinal = 0
+    if(len(avgScore)):
+        avgScoreFinal = round(sum(avgScore) / len(avgScore), 1)
+    return render_template('reviews.html', imgurl = imgurl, title = db.query_movieName(titleId)['title'], titleId = titleId, dbRes = dbRes, reviewed = reviewed, avgScore = avgScoreFinal)
 
 
 @app.route('/<moviename>/reviews/create', methods=['GET','POST'])
@@ -273,7 +306,7 @@ def reviews_create(moviename):
         return render_template('reviews_create.html', title = db.query_movieName(titleId)['title'], titleId = titleId)
 
     elif request.method == 'POST':
-        UserID = request.form.get("UserID")
+        UserID = session['userID']
         Score = request.form.get("Score")
         Review = request.form.get("Review")
         db.create_review(UserID, Score, titleId, Review)
@@ -285,7 +318,7 @@ def reviews_update(moviename, reviewId):
     if request.method == 'GET':
         return render_template('reviews_update.html', title = db.query_movieName(titleId)['title'], titleId = titleId, reviewId = reviewId)
     elif request.method == 'POST':
-        UserID = request.form.get("UserID")
+        UserID = session['userID']
         Score = request.form.get("Score")
         Review = request.form.get("Review")
         db.update_review(Score, UserID, reviewId, Review)
@@ -327,3 +360,5 @@ def cosmos_lookup():
     else:
         res = cosmos_db.query_enhanced(request.form['_id'])[0]
         return render_template('results.html', results = [res])
+
+

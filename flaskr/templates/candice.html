@@ -21,7 +21,6 @@
 <body style="background-color:black;color:silver">
 <div class="topnav">
     <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
-    <a href="{{ url_for('Candice') }}" style="font-family: papyrus;font-size:25px">Chatbot</a>
     {%if not session['login'] %}
     <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
     {%else %}
@@ -31,42 +30,47 @@
 <br>
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col text-center">
-
-            <p style=font-size:48px>{{ title }}<br></p>
-
-            <a href="{{ url_for('reviews', moviename=titleId)}}">Reviews for {{ title }}</a>
-        </div>
-    </div>
-    <!--<img src="{{ imgurl }}" alt="{{ imgurl }}" style="flex-grow:1; max-width: 300px; max-height: 500px;">-->
-</div>
-<br>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col text-center">
+        <div class="boxed">
+            <div>
+                <div id="chatbox">
+                    <img
+                            src="https://user-images.githubusercontent.com/20112458/49326597-773b7280-f57a-11e8-853d-20ed61d18b0d.png"
+                            alt="CANDICE"
+                            style="width:40px;height:40px;"
+                    />
+                    <p class="botText">
+                        <span>Hi! I'm Candice your personal MovieBuff ChatBot ❤️</span>
+                    </p>
+                </div>
+                <div id="userInput">
+                    <input id="textInput" type="text" name="msg" placeholder="Message" />
+                </div>
+            </div>
             <script>
-            document.write({{res|tojson}});
-            </script>
-            <br><br>
+        function getBotResponse() {
+          var rawText = $("#textInput").val();
+          var userHtml = '<p class="userText"><span>' + rawText + '</span></p>';
+          $("#textInput").val("");
+          $("#chatbox").append(userHtml);
+          document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
+          $.get("/getChat", { msg: rawText }).done(function(data) {
+            var botHtml = '<p class="botText"><span>' + data + '</span></p>';
+            $("#chatbox").append(botHtml);
+            document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
+          });
+        }
+        $("#textInput").keypress(function(e) {
+            if ((e.which == 13) && document.getElementById("textInput").value != "" ){
+                getBotResponse();
+            }
+        });
+        $("#buttonInput").click(function() {
+            if (document.getElementById("textInput").value != "") {
+                getBotResponse();
+            }
+        })
+      </script>
         </div>
-    </div>
-    <div class="row justify-content-center">
-        <table border="1">
-            <thead>
-            <tr><th>Cast & Crew</th><th>Position</th></tr>
-            </thead>
-            <tbody>
-            {% for i in nmRes %}
-            <tr><td>
-                <a href="{{ url_for('person', personname=i['imdb_title_id'])  }}">
-                    {{names[i['imdb_title_id']]}}
-                </a>
-            </td>
-                <td>{{i['category']}}</td>
-            </tr>
-            {%endfor%}
-            </tbody>
-        </table>
     </div>
 </div>
 </body>
