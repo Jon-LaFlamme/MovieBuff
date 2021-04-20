@@ -35,7 +35,7 @@ class MongoDB():
         if not self.client:
             self.connect()
         query = templates.query_titles_by_person(name)
-        return self.db.find(query)
+        return self.db.find(query).limit(30)
 
     def query_by_person(self, name: str) -> dict:
         """Returns roles and titles for cast/crew member"""
@@ -52,4 +52,10 @@ class MongoDB():
         # print(query)
         return self.db.find(query).limit(25)
 
-
+    def full_text_search_name(self, term: str):
+        """For autocomplete functionality.. fuzzy search"""
+        if not self.client:
+            self.connect()
+        query = templates.full_text_search_name(term)
+        return self.client.moviebuff.castcrew.aggregate(query)
+ 

@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, g, url_for, session
+from flask import Flask, request, redirect, render_template, g, url_for, session, jsonify
 import wtforms_jsonschema2
 from json2html import *
 from flaskr.forms import Title
@@ -15,8 +15,8 @@ db = MoviebuffDB()
 cosmos_db = MoviebuffCosmos()
 mongo_db = MongoDB()
 
-FAILURE = {'imdb_title_id':"",
-        'title':"title not found",
+FAILURE = [{'imdb_title_id':"",
+        'title':"Sorry, No Titles Found",
         'year':"N/A",
         'genre':"N/A",
         'language':"N/A",
@@ -24,7 +24,7 @@ FAILURE = {'imdb_title_id':"",
         'Netflix':"N/A",
         'Hulu':"N/A",
         'Prime':"N/A",
-        'Disney':"N/A"}
+        'Disney':"N/A"}]
 
 
 bot = ChatBot("Candice")
@@ -175,19 +175,31 @@ def process():
 
 @app.route('/search', methods=['GET','POST'])   #MongoDB Testing
 def search():
-    if request.method == 'GET':
-        return render_template('base-test-nosql.html')
-    else:
-        res = mongo_db.filter_query(request.json)
-        docs = []
-        if res:
-            for d in res:
-                docs.append(d)
-            res = docs
+    if request.method == 'GET':      
+        if 'q' in request.args:
+            term = request.args.get('q')
+            query = mongo_db.full_text_search_name(term)
+            results = set()
+            for item in query:
+                results.add(item["Name"])
+            res = [x for x in results]
+            return jsonify(matching_results=res)
         else:
+            return render_template('base-test-nosql.html')
+    else:
+        print(request.json, file=sys.stderr)
+        res = []
+        if "searchPerson" in request.json:
+            cursor = mongo_db.query_person_titles(request.json['searchPerson'])
+            res = [mov for mov in cursor]
+        else:
+            cursor = mongo_db.filter_query(request.json)
+            res = [mov for mov in cursor]
+        if not res:
             res = FAILURE   
+        print(res, file=sys.stderr)
         return render_template('results-mongo.html', results = res)  
-    return render_template('base-test-nosql.html')
+    #return render_template('base-test-nosql.html')
 
 
 @app.route('/search/<moviename>')   #MongoDB

@@ -7,14 +7,14 @@ def clean_filters(form: dict) -> dict:
         form['languages'] = [item for sublist in form['languages'] for item in sublist] #flatten list
     if form['genres']:
         form['genres'] = [item for sublist in form['genres'] for item in sublist] #flatten list
-    if form['streaming']:
+    if 'streaming' in form:
         form['streaming'] = [item for sublist in form['streaming'] for item in sublist] #flatten list
     if len(form['languages']) == 19 or len(form['languages']) == 0:
         form.pop('languages')
     if len(form['genres']) == 17 or len(form['genres']) == 0:
         form.pop('genres')
-    if len(form["streaming"]) < 1:
-        form.pop("streaming")
+    # if len(form["streaming"]) < 1:
+    #     form.pop("streaming")
     if form['yearStart']=='1900' and form['yearEnd']=='2021':
         form.pop('yearStart')
         form.pop('yearEnd')   
@@ -95,6 +95,26 @@ def rating_range(form: dict) -> dict:
     end = form['imdbEnd']
     return { "avg_vote" : { "$gte" :  start, "$lte" : end}}
 
-
 def query_titles_by_person(name) -> dict:
     return {"Principals.name.name": name}
+
+def full_text_search_name(searchterm):   
+    return [{"$search": {
+                "index": "default", # optional, defaults to "default"
+                "autocomplete": {
+                    "query": searchterm,
+                    "path": "Name",
+                    "tokenOrder": "sequential",
+                    #"fuzzy": <options>,
+                    #"score": <options>
+                    }
+                }
+            },
+            {"$limit": 5 },
+            {"$project": {  
+                "_id": 0,
+                "Name": 1
+                }
+            }]
+
+                    
