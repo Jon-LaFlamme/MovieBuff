@@ -31,7 +31,7 @@
 <br>
 <div class="container">
     <script>
-        var services, selectedServices, languages, selectedLanguages, genres, selectedGenres, searchCategory;
+        var services, selectedServices, languages, selectedLanguages, genres, selectedGenres, searchCategory="Cast/Crew Name";
     </script>
     <div class="row justify-content-center">
         <div class="col text-center">
@@ -321,38 +321,30 @@
                     $("#autocomplete").autocomplete({
                         source:function(request, response) {
                             $.getJSON("{{url_for('search')}}",{
-                                q: request.term, 
+                                q: request.term,
+                                c: searchCategory, 
                             }, function(data) {
                                 response(data.matching_results); 
                             });
                         },
                         focus: function(event, ui) {
                             $(this).val(ui.item.label);
-                            // $.ajax("{{url_for('search')}}",{
-                            //     data: JSON.stringify({"searchPerson": ui.item.label}),
-                            //     contentType: 'application/json',
-                            //     type: 'POST'});
-
                         }, 
                         minLength: 4,
-                        delay: 1,
+                        delay: 1500,
                         select: function(event, ui) {
                             console.log(ui.item.value)
-                            // $.ajax("{{url_for('search')}}",{
-                            //     data: JSON.stringify({"searchPerson": ui.item.label}),
-                            //     contentType: 'application/json',
-                            //     type: 'POST'}).one(select);
                             $.ajax({
-                            url: Flask.url_for('search'),
-                            type: 'POST',
-                            data: JSON.stringify({"searchPerson": ui.item.label}),
-                            contentType: 'application/json; charset=utf-8',
-                            dataType: 'json'
-                            }).done(function(result){
-                                document.getElementById("txtHint").innerHTML = result;
-                            })
-                            .fail(function(xhr, status, error){
-                                document.getElementById("txtHint").innerHTML = xhr.responseText;
+                                url: Flask.url_for('search'),
+                                type: 'POST',
+                                data: JSON.stringify({"searchTerm": ui.item.label,  "searchCategory": searchCategory}),
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: 'json'
+                                }).done(function(result){
+                                    document.getElementById("txtHint").innerHTML = result;
+                                })
+                                .fail(function(xhr, status, error){
+                                    document.getElementById("txtHint").innerHTML = xhr.responseText;
                             });
                         }
                     });
@@ -371,13 +363,16 @@
                 <a class="dropdown-item">Description</a>
                 <a class="dropdown-item">Search All</a>
                 <script>
-                    var header = document.getElementById("sortSelection");
+                    var header = document.getElementById("searchCategory");
                     var btns = header.getElementsByClassName("dropdown-item");
                     for (var i = 0; i < btns.length; i++) {
                       btns[i].addEventListener("click", function() {
-                      var current = document.getElementsByClassName("dropdown-item active");
-                      current[0].className = current[0].className.replace(" active", "");
-                      this.className += " active";
+                        var current = document.getElementsByClassName("dropdown-item active");
+                        current[0].className = current[0].className.replace(" active", "");
+                        this.className += " active";
+                        console.log(current[1].text);
+                        searchCategory = current[1].text;
+                        
                       });
                     }
                 </script>

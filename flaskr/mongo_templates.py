@@ -43,11 +43,6 @@ def filter_query(form: dict) -> dict:
         q = rating_range(form)
         query.update(q)
     order = order_by(form)["$orderby"]
-    print("this is output for order")
-    print(order)
-    print("this is the filter query")
-    print(query)
-
     return {"$query": query, "$orderby": order}
 
 
@@ -110,11 +105,68 @@ def full_text_search_name(searchterm):
                     }
                 }
             },
-            {"$limit": 5 },
+            {"$limit": 15 },
             {"$project": {  
                 "_id": 0,
                 "Name": 1
                 }
             }]
 
-                    
+def full_text_search_title(searchterm):   
+    return [{"$search": {
+                "index": "default", # optional, defaults to "default"
+                "autocomplete": {
+                    "query": searchterm,
+                    "path": "title",
+                    "tokenOrder": "sequential",
+                    #"fuzzy": <options>,
+                    #"score": <options>
+                    }
+                }
+            },
+            {"$limit": 15 },
+            {"$project": {  
+                "_id": 0,
+                "title": 1
+                }
+            }]
+
+def full_text_search_description(searchterm):   
+    return [{"$search": {
+                "index": "default", # optional, defaults to "default"
+                "autocomplete": {
+                    "query": searchterm,
+                    "path": "title",
+                    "tokenOrder": "sequential",
+                    #"fuzzy": <options>,
+                    #"score": <options>
+                    }
+                }
+            },
+            {"$limit": 15 },
+            {"$project": {  
+                "_id": 0,
+                "title": 1,
+                "Imdb_Title_id": 1
+                }
+            }]
+
+
+def full_text_search_all(searchterm):   
+    return [{"$search": {
+                "index": "default", # optional, defaults to "default"
+                "autocomplete": {
+                    "query": searchterm,
+                    "path": "Name",
+                    "tokenOrder": "sequential",
+                    #"fuzzy": <options>,
+                    #"score": <options>
+                    }
+                }
+            },
+            {"$limit": 15 },
+            {"$project": {  
+                "_id": 0,
+                "Name": 1
+                }
+            }]

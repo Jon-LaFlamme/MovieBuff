@@ -48,14 +48,41 @@ class MongoDB():
         if not self.client:
             self.connect()
         query = templates.filter_query(form)
-        # print("this is the full query")
-        # print(query)
+        print("This is the full filter query: ", query)
         return self.db.find(query).limit(25)
 
+    def query_by_title_name(self, title: str): # -> cursor object:
+        """Simple title Fetch by title_name"""
+        if not self.client:
+            self.connect()
+        return self.db.find({'title': title}).limit(15)
+
     def full_text_search_name(self, term: str):
-        """For autocomplete functionality.. fuzzy search"""
+        """For autocomplete functionality.. fuzzy search on Name"""
         if not self.client:
             self.connect()
         query = templates.full_text_search_name(term)
         return self.client.moviebuff.castcrew.aggregate(query)
+
+    def full_text_search_title(self, term: str):
+        """For autocomplete functionality.. fuzzy search on Title"""
+        if not self.client:
+            self.connect()
+        query = templates.full_text_search_title(term)
+        return self.client.moviebuff.engtitles.aggregate(query)
+
+    def full_text_search_description(self, term: str):
+        """For autocomplete functionality.. fuzzy search on Description"""
+        if not self.client:
+            self.connect()
+        query = templates.full_text_search_description(term)
+        return self.client.moviebuff.engdescriptions.aggregate(query)
+
+    def full_text_search_all(self, term: str):
+        """For autocomplete functionality.. fuzzy search on All=[name,title,description]"""
+        if not self.client:
+            self.connect()
+        query = templates.full_text_search_all(term)
+        return self.client.moviebuff.castcrew.aggregate(query)
+    
  

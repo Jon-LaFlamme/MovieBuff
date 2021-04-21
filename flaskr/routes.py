@@ -173,33 +173,71 @@ def process():
         return render_template('results.html', results = res)
 
 
-@app.route('/search', methods=['GET','POST'])   #MongoDB Testing
+@app.route('/search', methods=['GET','POST'])   #MongoDB
 def search():
     if request.method == 'GET':      
         if 'q' in request.args:
             term = request.args.get('q')
-            query = mongo_db.full_text_search_name(term)
-            results = set()
-            for item in query:
-                results.add(item["Name"])
-            res = [x for x in results]
+            category = request.args.get('c')
+            res = ["No Matches Found"]
+            print([term,category], file=sys.stderr)
+            if category == "Cast/Crew Name":
+                cursor = mongo_db.full_text_search_name(term)
+                unique_res = set()
+                for x in cursor:
+                    unique_res.add(x['Name']) 
+                res = list(unique_res)
+            elif category == "Description":
+                cursor = mongo_db.full_text_search_description(term)
+                raw_res = []
+                res = []
+                if cursor:
+                    for x in cursor:
+                        raw_res.append((x["Imdb_Title_id"], x['title']))
+                    for key, desc in raw_res:
+                        t = mongo_db.query_by_id(key)
+                        if t:
+                            entry = t['title'] + ' : ' + desc + "\n"
+                            res.append(entry)
+            elif category == "Movie Title":
+                cursor = mongo_db.full_text_search_title(term)
+                unique_res = set()
+                for x in cursor:
+                    unique_res.add(x['title'])
+                res = list(unique_res)
+            else:   #category=="Search All"
+                #TODO Create FTS for multi-index search
+                pass
+            #print(res, file=sys.stderr)
             return jsonify(matching_results=res)
         else:
             return render_template('base-test-nosql.html')
     else:
         print(request.json, file=sys.stderr)
         res = []
-        if "searchPerson" in request.json:
-            cursor = mongo_db.query_person_titles(request.json['searchPerson'])
-            res = [mov for mov in cursor]
+        if "searchTerm" in request.json:
+            term = request.json['searchTerm']
+            category = request.json['searchCategory']
+            cursor = None
+            if category == "Cast/Crew Name":
+                cursor = mongo_db.query_person_titles(term)
+            elif category == "Description":
+                title = term.split(':')[0].strip()
+                cursor = mongo_db.query_by_title_name(title)
+            elif category == "Movie Title":
+                cursor = mongo_db.query_by_title_name(term)
+            else:   #category=="Search All"
+                pass #TODO Setup multi-index text search       
+            if cursor:
+                res = [mov for mov in cursor]
+            else:
+                res = FAILURE
         else:
             cursor = mongo_db.filter_query(request.json)
             res = [mov for mov in cursor]
         if not res:
             res = FAILURE   
-        print(res, file=sys.stderr)
         return render_template('results-mongo.html', results = res)  
-    #return render_template('base-test-nosql.html')
 
 
 @app.route('/search/<moviename>')   #MongoDB
