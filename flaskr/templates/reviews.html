@@ -35,6 +35,7 @@
             <p style=font-size:48px>{{ title }} - Reviews<br></p>
 
             {%if dbRes|length > 0%}
+            <p style=font-size:24px>IMDB Score: {{ dbRes[0]['avg_vote'] }} / 10</p>
             <p style=font-size:24px>MovieBuff Score {{avgScore}} / 10<br></p>
             {%endif%}
 

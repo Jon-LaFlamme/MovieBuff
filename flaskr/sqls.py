@@ -120,7 +120,8 @@ filter_search_title = "select imdb_title_id,title, year, genre, language, avg_vo
 
 imdb_id = "SELECT * FROM imdblist WHERE imdb_title_id = %s"
 
-imdb_id_reviews = "SELECT * FROM reviews JOIN reviewtext ON reviews.ReviewId = reviewtext.ReviewId WHERE TitleId = %s"
+imdb_id_reviews_createView = "CREATE OR REPLACE VIEW v1 as SELECT * FROM reviews NATURAL JOIN reviewtext JOIN imdblist ON reviews.TitleId = imdblist.imdb_title_id WHERE TitleId = %s"
+imdb_id_reviews_readView = "SELECT * from v1"
 
 imdb_review_by_reviewId = "SELECT * FROM reviews JOIN reviewtext ON reviews.ReviewId = reviewtext.ReviewId WHERE reviews.ReviewId = %s"
 
@@ -128,7 +129,7 @@ remove_review_by_reviewId = "DELETE FROM reviews WHERE ReviewId = %s"
 remove_reviewtext_by_reviewId = "DELETE FROM reviewtext WHERE ReviewId = %s"
 
 create_review = "INSERT INTO reviews (TitleID, reviewscore, CreatedByUserID, CreatedByDate, UpdatedByUserID, UpdatedByDate)" + "VALUES (%s, %s, %s, CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP)"
-create_reviewtext = "INSERT INTO reviewtext (ReviewID, Review, CreatedByUserID, UpdatedByUserID, CreatedByDate, UpdatedByDate)" + "VALUES ((SELECT ReviewID FROM reviews WHERE TitleID = %s AND CreatedByUserID = %s AND UpdatedByUserID = %s AND reviewscore = %s), %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+create_reviewtext = "CALL createReviewText(%s, %s, %s, %s)"
 
 update_review = "UPDATE reviews SET reviewscore = %s, UpdatedByUserID = %s, UpdatedByDate = CURRENT_TIMESTAMP WHERE ReviewID = %s"
 update_reviewtext = "UPDATE reviewtext SET Review = %s WHERE ReviewID = %s"
