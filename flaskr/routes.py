@@ -7,6 +7,7 @@ from flaskr.cosmos import MoviebuffCosmos
 from flaskr.mongo import MongoDB
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
+from chatterbot.trainers import ListTrainer
 from flaskr import app
 import json
 from flaskr import sqls as sqls
@@ -14,6 +15,14 @@ from flaskr import sqls as sqls
 db = MoviebuffDB()
 cosmos_db = MoviebuffCosmos()
 mondgo_db = MongoDB()
+
+convoList = []
+ServicesList = ['Netflix', 'Prime', 'Hulu', 'Disney']
+earliestYear = 1900
+lowestRating = 0
+languageList = ['English','Spanish','German','Italian','French','Russian','Danish','Swedish','Japanese','Hindi','Mandarin','Arabic','Korean','Portugese']
+genreList = ['Action','Adventure','Animation','Biography','Comedy','Crime',
+             'Drama','Fantasy','History','Horror','Musical','Mystery','Romance','Sci-Fi','Thriller','War','Western']
 
 FAILURE = {'imdb_title_id':"",
         'title':"title not found",
@@ -38,6 +47,27 @@ trainer.train("chatterbot.corpus.english.greetings")
 # Train based on the english conversations corpus
 trainer.train("chatterbot.corpus.english.conversations")
 
+listTrainer = ListTrainer(bot)
+
+
+for i in ServicesList:
+    listTrainer.train([
+        i,
+        "Ok, we'll search for movies on the " + i + " streaming service. Please enter one of the following languages to search for : " + ' '.join(languageList)
+    ])
+
+for i in languageList:
+    listTrainer.train([
+        i,
+        "Ok, we'll search for movies in the " + i + " language. Please enter one of the following genres to search for : " + ' '.join(genreList)
+    ])
+
+for i in genreList:
+    listTrainer.train([
+        i,
+        "Ok, we'll search for movies in the " + i + " genre. Searching..."
+    ])
+
 @app.route('/', methods=['GET','POST'])  #Basic Title Search/Home Page
 def home():
     if request.method == 'GET':
@@ -49,6 +79,8 @@ def home():
 
 @app.route('/__Candice', methods=['GET','POST'])  #Basic Title Search/Home Page
 def Candice():
+    global convoList
+    convoList = []
     if request.method == 'GET':
         return render_template('candice.html')
 
@@ -56,6 +88,25 @@ def Candice():
 def get_bot_response():
     userText = request.args.get('msg')
     return str(bot.get_response(userText))
+    global convoList
+
+    if (userText in genreList or userText in languageList or userText in ServicesList):
+        convoList.append(userText)
+
+    returnVal = str(bot.get_response(userText))
+    if returnVal.find("Searching...") == -1:
+        return returnVal
+    else:
+        finalString = ''
+        res = db.filter_chatbot(convoList[0])
+        res = filterLanguage([convoList[1]], res)
+        res = filterGenre([convoList[2]], res)
+        for i in res[:-1]:
+            finalString += i['title'] + ", "
+        finalString += res[-1]['title']
+        finalString += ". To begin again, re-enter the streaming service you would like to search, Netflix, Hulu, Prime, or Disney"
+        convoList = []
+        return finalString
 
 @app.route('/Login', methods=['GET','POST'])
 def login():

@@ -149,6 +149,8 @@ nameData = "SELECT imdb_name, category FROM imdbprincipals WHERE imdb_title_id =
 
 movieById = "SELECT title, year from imdblist where imdb_title_id = %s"
 
+chatbot = "select imdb_title_id, title, genre, language from imdblist, streaming where imdblist.title = streaming.STitle"
+
 streaming = "select imdb_title_id, title, year, genre, language, avg_vote, Netflix, Hulu, Prime, Disney from imdblist, streaming where imdblist.title = streaming.STitle and year >= %s and year <= %s and avg_vote >= %s and avg_vote <= %s"
 
 
