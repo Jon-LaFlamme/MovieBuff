@@ -88,17 +88,6 @@ class MoviebuffDB():
             res = c.fetchall()
         return res
 
-    def filter_chatbot(self, param):
-        self.connect()
-        sql = sqls.chatbot
-        sql += " and (" + param + " = 1) order by avg_vote desc limit 500"
-        res = {"Query result": 0}
-        with self.driver.cursor() as c:
-            c.execute(sql)
-            res = c.fetchall()
-        self.close_connection()
-        return res
-
     def filter_streaming(self, query: str, Services):
         self.connect()
         sql = sqls.streaming
@@ -129,7 +118,6 @@ class MoviebuffDB():
             res = c.fetchall()
         self.close_connection()
         return res
-
 
     def filter_streaming_title(self, query: str, Services):
         self.connect()
