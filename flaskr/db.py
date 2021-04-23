@@ -228,10 +228,12 @@ class MoviebuffDB():
     def query_id_reviews(self, query: str):
         if not self.driver:
             self.connect()
-        sql = sqls.imdb_id_reviews
+        sql = sqls.imdb_id_reviews_createView
+        sql2 = sqls.imdb_id_reviews_readView
         res = {"Query result": 0}
         with self.driver.cursor() as c:
             c.execute(sql, query)
+            c.execute(sql2)
             res = c.fetchall()
         return res
  
@@ -280,7 +282,7 @@ class MoviebuffDB():
             sql = sqls.create_review
             num = c.execute(sql, (TitleID, Score, UserID, UserID))
             sql = sqls.create_reviewtext
-            num = c.execute(sql, (TitleID, UserID, UserID, Score, Review, UserID, UserID)) 
+            num = c.execute(sql, (TitleID, UserID, Review, Score)) 
         self.close_connection()
         return {"Created": True}
 

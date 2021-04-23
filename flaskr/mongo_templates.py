@@ -7,18 +7,17 @@ def clean_filters(form: dict) -> dict:
         form['languages'] = [item for sublist in form['languages'] for item in sublist] #flatten list
     if form['genres']:
         form['genres'] = [item for sublist in form['genres'] for item in sublist] #flatten list
-    # if form['streaming']:
-    #     form['streaming'] = [item for sublist in form['languages'] for item in sublist] #flatten list
-
+    if 'streaming' in form:
+        form['streaming'] = [item for sublist in form['streaming'] for item in sublist] #flatten list
     if len(form['languages']) == 19 or len(form['languages']) == 0:
         form.pop('languages')
-    # if not form["streaming"]:
-    #     form.pop('streaming')
     if len(form['genres']) == 17 or len(form['genres']) == 0:
         form.pop('genres')
+    # if len(form["streaming"]) < 1:
+    #     form.pop("streaming")
     if form['yearStart']=='1900' and form['yearEnd']=='2021':
         form.pop('yearStart')
-        form.pop('yearEnd')
+        form.pop('yearEnd')   
     if (form['imdbStart']=='0' and form['imdbEnd']=='10'):
         form.pop('imdbStart')
         form.pop('imdbEnd')
@@ -30,9 +29,9 @@ def filter_query(form: dict) -> dict:
     """Clean filters and select correct query string"""
     form = clean_filters(form)
     query = {}
-    filters = ["language", "genre"] #, "streaming"]
+    filters = ["languages", "genres" , "streaming"]
     for f in filters:
-        if f in form:
+        if f in form.keys():
             q = lang_genre_stream(form)
             query.update(q)
             break
@@ -44,11 +43,6 @@ def filter_query(form: dict) -> dict:
         q = rating_range(form)
         query.update(q)
     order = order_by(form)["$orderby"]
-    print("this is output for order")
-    print(order)
-    print("this is the filter query")
-    print(query)
-
     return {"$query": query, "$orderby": order}
 
 
@@ -68,20 +62,20 @@ def order_by(form: dict) -> dict:
 
 
 def lang_genre_stream(form: dict) -> dict:
+    print("lang_genre_stream")
     query = {}
-    if "language" in form:
-        languages = form["language"]
+    if "languages" in form.keys():
+        languages = form["languages"]
         q = { "language": { "$in": languages}}
         query.update(q)
-    if "genre" in form:
-        genres = form["language"]
-        q = { "language": { "$in": genres }}
+    if "genres" in form.keys():
+        genres = form["genres"]
+        q = { "genre": { "$in": genres }}
         query.update(q)
-    #if "streaming" in form:
-
-    #    services = form["streaming"]
-    #    q = { "streaming": { "$in": services }}
-    #    query.update(q)
+    if "streaming" in form.keys():
+       services = form["streaming"]
+       q = { "Streaming": { "$in": services }}
+       query.update(q)
     return query
 
 
@@ -96,4 +90,83 @@ def rating_range(form: dict) -> dict:
     end = form['imdbEnd']
     return { "avg_vote" : { "$gte" :  start, "$lte" : end}}
 
+def query_titles_by_person(name) -> dict:
+    return {"Principals.name.name": name}
 
+def full_text_search_name(searchterm):   
+    return [{"$search": {
+                "index": "default", # optional, defaults to "default"
+                "autocomplete": {
+                    "query": searchterm,
+                    "path": "Name",
+                    "tokenOrder": "sequential",
+                    #"fuzzy": <options>,
+                    #"score": <options>
+                    }
+                }
+            },
+            {"$limit": 15 },
+            {"$project": {  
+                "_id": 0,
+                "Name": 1
+                }
+            }]
+
+def full_text_search_title(searchterm):   
+    return [{"$search": {
+                "index": "default", # optional, defaults to "default"
+                "autocomplete": {
+                    "query": searchterm,
+                    "path": "title",
+                    "tokenOrder": "sequential",
+                    #"fuzzy": <options>,
+                    #"score": <options>
+                    }
+                }
+            },
+            {"$limit": 15 },
+            {"$project": {  
+                "_id": 0,
+                "title": 1
+                }
+            }]
+
+def full_text_search_description(searchterm):   
+    return [{"$search": {
+                "index": "default", # optional, defaults to "default"
+                "autocomplete": {
+                    "query": searchterm,
+                    "path": "title",
+                    "tokenOrder": "sequential",
+                    #"fuzzy": <options>,
+                    #"score": <options>
+                    }
+                }
+            },
+            {"$limit": 15 },
+            {"$project": {  
+                "_id": 0,
+                "title": 1,
+                "Imdb_Title_id": 1
+                }
+            }]
+
+
+def full_text_search_all(searchterm):   
+    return [{"$search": {
+                "index": "default", # optional, defaults to "default"
+                "autocomplete": {
+                    "query": searchterm,
+                    "path": "Name",
+                    "tokenOrder": "sequential",
+                    #"fuzzy": <options>,
+                    #"score": <options>
+                    }
+                }
+            },
+            {"$limit": 15 },
+            {"$project": {  
+                "_id": 0,
+                "Name": 1
+                }
+            }]

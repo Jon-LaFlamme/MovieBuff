@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, g, url_for, session
+from flask import Flask, request, redirect, render_template, g, url_for, session, jsonify
 import wtforms_jsonschema2
 from json2html import *
 from flaskr.forms import Title
@@ -14,7 +14,7 @@ from flaskr import sqls as sqls
 
 db = MoviebuffDB()
 cosmos_db = MoviebuffCosmos()
-mondgo_db = MongoDB()
+mongo_db = MongoDB()
 
 convoList = []
 ServicesList = ['Netflix', 'Prime', 'Hulu', 'Disney']
@@ -24,8 +24,8 @@ languageList = ['English','Spanish','German','Italian','French','Russian','Danis
 genreList = ['Action','Adventure','Animation','Biography','Comedy','Crime',
              'Drama','Fantasy','History','Horror','Musical','Mystery','Romance','Sci-Fi','Thriller','War','Western']
 
-FAILURE = {'imdb_title_id':"",
-        'title':"title not found",
+FAILURE = [{'imdb_title_id':"",
+        'title':"Sorry, No Titles Found",
         'year':"N/A",
         'genre':"N/A",
         'language':"N/A",
@@ -33,7 +33,7 @@ FAILURE = {'imdb_title_id':"",
         'Netflix':"N/A",
         'Hulu':"N/A",
         'Prime':"N/A",
-        'Disney':"N/A"}
+        'Disney':"N/A"}]
 
 
 bot = ChatBot("Candice")
@@ -224,43 +224,114 @@ def process():
         return render_template('results.html', results = res)
 
 
-@app.route('/search', methods=['GET','POST'])   #MongoDB Testing
+@app.route('/search', methods=['GET','POST'])   #MongoDB
 def search():
-    if request.method == 'GET':
-        return render_template('base-test-nosql.html')
+    if request.method == 'GET':      
+        if 'q' in request.args:
+            term = request.args.get('q')
+            category = request.args.get('c')
+            res = ["No Matches Found"]
+            print([term,category], file=sys.stderr)
+            if category == "Cast/Crew Name":
+                cursor = mongo_db.full_text_search_name(term)
+                unique_res = set()
+                for x in cursor:
+                    unique_res.add(x['Name']) 
+                res = list(unique_res)
+            elif category == "Description":
+                cursor = mongo_db.full_text_search_description(term)
+                raw_res = []
+                res = []
+                if cursor:
+                    for x in cursor:
+                        raw_res.append((x["Imdb_Title_id"], x['title']))
+                    for key, desc in raw_res:
+                        t = mongo_db.query_by_id(key)
+                        if t:
+                            entry = t['title'] + ' : ' + desc + "\n"
+                            res.append(entry)
+            elif category == "Movie Title":
+                cursor = mongo_db.full_text_search_title(term)
+                unique_res = set()
+                for x in cursor:
+                    unique_res.add(x['title'])
+                res = list(unique_res)
+            else:   #category=="Search All"
+                #TODO Create FTS for multi-index search
+                pass
+            #print(res, file=sys.stderr)
+            return jsonify(matching_results=res)
+        else:
+            return render_template('base-test-nosql.html')
     else:
         print(request.json, file=sys.stderr)
-        res = mondgo_db.filter_query(request.json)
-        docs = []
-        if res:
-            for d in res:
-                docs.append(d)
-            res = docs
+        res = []
+        if "searchTerm" in request.json:
+            term = request.json['searchTerm']
+            category = request.json['searchCategory']
+            cursor = None
+            if category == "Cast/Crew Name":
+                cursor = mongo_db.query_person_titles(term)
+            elif category == "Description":
+                title = term.split(':')[0].strip()
+                cursor = mongo_db.query_by_title_name(title)
+            elif category == "Movie Title":
+                cursor = mongo_db.query_by_title_name(term)
+            else:   #category=="Search All"
+                pass #TODO Setup multi-index text search       
+            if cursor:
+                res = [mov for mov in cursor]
+            else:
+                res = FAILURE
         else:
+            cursor = mongo_db.filter_query(request.json)
+            res = [mov for mov in cursor]
+        if not res:
             res = FAILURE   
-        print(res, file=sys.stderr)
         return render_template('results-mongo.html', results = res)  
-    return render_template('base-test-nosql.html')
 
 
-@app.route('/search/title', methods=["GET","POST"])   #MongoDB Testing
-def search_title():
-    data = request.json
-    print(data, file=sys.stderr)
-    moviename = data["Imdb_Title_id"]
-    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + moviename + ".jpg"
-    #Clean up the fields
-    principals = data.pop("Principals")
-    data.pop(moviename)
-    cast_crew = {}
+@app.route('/search/<moviename>')   #MongoDB
+def search_title(moviename):
+    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + moviename + ".jpg" 
+    title = mongo_db.query_by_id(moviename)    
+    title.pop("Imdb_Title_id")
+    title.pop("_id")
+    principals = title.pop("Principals")   
+    cast_crew = []
     for role in principals:
-        title = role["category"]
-        for person in role['Name']:
-            cast_crew.update({person["Name"]: title})
-    
-    print(cast_crew, file=sys.stderr)
-    return render_template('movie-nosql.html', res = json2html.convert(json=data), cast_crew = cast_crew, 
-                        imgurl = imgurl, title = data['title'], titleId = moviename)
+        job = role["category"]
+        names = role['name']
+        for person in names:
+            cast_crew.append((person["name"], job))
+    return render_template('movie-nosql.html', res = json2html.convert(json=title), cast_crew = cast_crew, 
+                        imgurl = imgurl, title = title['title'], titleId = moviename)
+
+@app.route('/search/cast-crew/<name>')   #MongoDB
+def search_person(name):
+    person_details = mongo_db.query_by_person(name)
+    print(person_details, file=sys.stderr)
+    titles = mongo_db.query_person_titles(name)     #titles -> cursor object iterable
+    person_all_roles = []
+    person_title_role = {}
+    for t in titles:       
+        person_title_role = {"Imdb_Title_id": t["Imdb_Title_id"],
+                            "title": t['title'],
+                             "year": t['year']}
+        principals = t["Principals"]
+        for role in principals:
+            names = role['name']
+            print(names, file=sys.stderr)    
+            for n in names:
+                if n['name'] == name:
+                    person_title_role.update({"category": role['category']})
+                    print(person_title_role, file=sys.stderr)
+                    person_all_roles.append(person_title_role)
+
+    print(person_all_roles, file=sys.stderr)
+
+    return render_template('person-mongo.html', title_details = person_all_roles, person = person_details)
+
 
 
 @app.route('/<moviename>')
