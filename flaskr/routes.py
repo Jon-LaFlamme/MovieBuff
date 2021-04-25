@@ -87,7 +87,6 @@ def Candice():
 @app.route('/getChat')
 def get_bot_response():
     userText = request.args.get('msg')
-    return str(bot.get_response(userText))
     global convoList
 
     if (userText in genreList or userText in languageList or userText in ServicesList):
