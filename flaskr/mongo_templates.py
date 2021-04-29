@@ -9,12 +9,12 @@ def clean_filters(form: dict) -> dict:
         form['genres'] = [item for sublist in form['genres'] for item in sublist] #flatten list
     if 'streaming' in form:
         form['streaming'] = [item for sublist in form['streaming'] for item in sublist] #flatten list
+        if len(form["streaming"]) < 1:
+            form.pop("streaming")
     if len(form['languages']) == 19 or len(form['languages']) == 0:
         form.pop('languages')
     if len(form['genres']) == 17 or len(form['genres']) == 0:
         form.pop('genres')
-    # if len(form["streaming"]) < 1:
-    #     form.pop("streaming")
     if form['yearStart']=='1900' and form['yearEnd']=='2021':
         form.pop('yearStart')
         form.pop('yearEnd')   
