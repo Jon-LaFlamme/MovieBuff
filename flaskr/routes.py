@@ -68,14 +68,16 @@ for i in genreList:
         "Ok, we'll search for movies in the " + i + " genre. Searching..."
     ])
 
-@app.route('/', methods=['GET','POST'])  #Basic Title Search/Home Page
+#@app.route('/', methods=['GET','POST'])  #Basic Title Search/Home Page
+@app.route('/')
 def home():
-    if request.method == 'GET':
-        return render_template('base.html')
-    else:
-        query = request.form.get('Title')
-        res = db.query_basic(query)
-        return json2html.convert(json=res)
+    # if request.method == 'GET':
+    #     return render_template('base.html')
+    # else:
+    #     query = request.form.get('Title')
+    #     res = db.query_basic(query)
+    #     return json2html.convert(json=res)
+    return redirect("search")
 
 @app.route('/__Candice', methods=['GET','POST'])  #Basic Title Search/Home Page
 def Candice():
