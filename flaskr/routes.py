@@ -32,7 +32,7 @@ genreList = ['Action','Adventure','Animation','Biography','Comedy','Crime',
 NO = ['no', 'nope', 'no thanks', 'negative', 'n', 'sorry']
 YES = ['yes', 'sure', 'okay', 'alright', 'y', 'yup', 'ya', 'yeah','maybe', 'definitely', 'ok', 'k', 'possibly', 'certainly']
 AMBIGUOUS = ["any", "either", 'neither', 'none', 'all', "none", "no preference", "doesn't matter", "don't care"]
-CAST_CREW = ['cast/crew', 'cast/crew member' 'cast', 'crew', 'member' 'actor', 'director', 'writer',\
+CAST_CREW = ['cast/crew', 'cast/crew member', 'cast', 'crew', 'member', 'actor', 'director', 'writer',\
          'producer', 'actress', 'cinematographer', 'person', 'human', 'people', 'role']
 MOVIE_NAME = ['title', 'movie', 'moviename', 'title name', 'movie name', 'show']
 KEYWORD = ['keyword', 'word', 'description', 'topic', 'topical']
@@ -182,37 +182,37 @@ def getChat():
         else:
             return ERROR + DIRECT_QUERY_CATEGORY
     
-    elif DIRECT_QUERY_TERM_PREFIX == prompt:        #query user input text on category and return results
+    elif DIRECT_QUERY_TERM_PREFIX == prompt:        #direct query on selected category
         res = None
         query = " ".join(words)
-        if category == "cast/crew": #working but to be replaced
+
+        if category == "cast/crew":
             cursor = mongo_db.full_text_search_name(query)
             if cursor:
-                unique_res = set()
+                res = []
                 for x in cursor:
-                    unique_res.add(x['Name'])
-                names = list(unique_res)
-                print(names, file=sys.stderr)
-                res = mongo_db.query_by_person_many(names)
-          
-        #TODO custom template replacement for name search
-        #if category == "cast/crew":
+                    res.append({"Name": x['Name'], "category": x['category']})
+                print(res, file=sys.stderr)
+                return render_template('chatbot-search-person.html', results = res)
+            else:
+                return render_template('results-mongo.html', results = FAILURE)
 
         elif category == "description":
-            #TODO Return custom html template with descriptions
             cursor = mongo_db.full_text_search_description(query)
             if cursor:
-                unique_res = set()
+                res = []
                 for x in cursor:
-                    unique_res.add(x["Imdb_Title_id"])
-                ids = list(unique_res)
-                print(ids, file=sys.stderr)
-                res = mongo_db.query_by_title_id_many(ids)
-        
-        #TODO custom templatee replacement for keyword search 
-        #elif category == "description":
+                    print(x, file=sys.stderr)
+                    title = mongo_db.query_by_id(x["Imdb_Title_id"])
+                    if title:
+                        print(title, file=sys.stderr)
+                        res.append({"Imdb_Title_id": x["Imdb_Title_id"], "title": title["title"], "description": x["title"]})
+                print(res, file=sys.stderr)
+                return render_template('chatbot-search-keyword.html', results = res)
+            else:
+                return render_template('results-mongo.html', results = FAILURE)
 
-        else:
+        else:   # title search
             cursor = mongo_db.full_text_search_title(query)
             if cursor:
                 unique_res = set()

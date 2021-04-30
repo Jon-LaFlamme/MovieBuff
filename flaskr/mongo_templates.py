@@ -111,7 +111,8 @@ def full_text_search_name(searchterm):
             {"$limit": 15 },
             {"$project": {  
                 "_id": 0,
-                "Name": 1
+                "Name": 1,
+                "category": 1
                 }
             }]
 
@@ -149,27 +150,8 @@ def full_text_search_description(searchterm):
             {"$limit": 15 },
             {"$project": {  
                 "_id": 0,
-                "title": 1,
+                "title": 1,     # mislabeled, this is actually description field
                 "Imdb_Title_id": 1
                 }
             }]
 
-
-def full_text_search_all(searchterm):   
-    return [{"$search": {
-                "index": "default", # optional, defaults to "default"
-                "autocomplete": {
-                    "query": searchterm,
-                    "path": "Name",
-                    "tokenOrder": "sequential",
-                    #"fuzzy": <options>,
-                    #"score": <options>
-                    }
-                }
-            },
-            {"$limit": 15 },
-            {"$project": {  
-                "_id": 0,
-                "Name": 1
-                }
-            }]
