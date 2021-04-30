@@ -43,6 +43,31 @@ class MongoDB():
             self.connect()
         return self.client.moviebuff.castcrew.find_one({'Name': name})
 
+    def chatbot_genre_query(self, genres: list): #-> cursor object
+        """Filter by genres only, default order by rating"""
+        if not self.client:
+            self.connect()
+        return self.db.find({"$query": { "genre": { "$in": genres }}, "$orderby": { "avg_vote" : -1 }}).limit(25)
+
+    def query_by_title_name_many(self, titles: list): #-> cursor object
+        """Return all titles by name"""
+        if not self.client:
+            self.connect()
+        return self.db.find({"$query": { "title": { "$in": titles }}, "$orderby": { "avg_vote" : -1 }}).limit(25)
+    
+    def query_by_person_many(self, names: list): #-> cursor object
+        """Return all titles with a given name"""
+        if not self.client:
+            self.connect()
+        query = templates.query_titles_by_person_many(names)
+        return self.db.find(query).limit(25)
+
+    def query_by_title_id_many(self, ids: list): #-> cursor object
+        """Return all titles by id"""
+        if not self.client:
+            self.connect()
+        return self.db.find({"$query": { "Imdb_Title_id": { "$in": ids }}, "$orderby": { "avg_vote" : -1 }}).limit(25)
+
     def filter_query(self, form: dict): #-> cursor object
         """Home Page multiple filter and order query"""
         if not self.client:
@@ -78,11 +103,4 @@ class MongoDB():
         query = templates.full_text_search_description(term)
         return self.client.moviebuff.engdescriptions.aggregate(query)
 
-    def full_text_search_all(self, term: str):
-        """For autocomplete functionality.. fuzzy search on All=[name,title,description]"""
-        if not self.client:
-            self.connect()
-        query = templates.full_text_search_all(term)
-        return self.client.moviebuff.castcrew.aggregate(query)
-    
  

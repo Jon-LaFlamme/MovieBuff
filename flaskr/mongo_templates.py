@@ -90,8 +90,11 @@ def rating_range(form: dict) -> dict:
     end = form['imdbEnd']
     return { "avg_vote" : { "$gte" :  start, "$lte" : end}}
 
-def query_titles_by_person(name) -> dict:
+def query_titles_by_person(name: str) -> dict:
     return {"Principals.name.name": name}
+
+def query_titles_by_person_many(names: list) -> dict:
+    return {"Principals.name.name": { "$in": names}}
 
 def full_text_search_name(searchterm):   
     return [{"$search": {

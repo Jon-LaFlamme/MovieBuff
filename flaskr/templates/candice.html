@@ -39,7 +39,7 @@
                             style="width:40px;height:40px;"
                     />
                     <p class="botText">
-                        <span>Hi! I'm Candice your personal MovieBuff ChatBot, here to help you find your perfect movie ❤️ Please enter a streaming service to get started: Netflix, Hulu, Prime, or Disney</span>
+                        <span >Hi! I'm Candice. Can I help you find a movie today?</span>
                     </p>
                 </div>
                 <div id="userInput">
@@ -53,7 +53,7 @@
           $("#textInput").val("");
           $("#chatbox").append(userHtml);
           document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
-          $.get("/getChat", { msg: rawText }).done(function(data) {
+          $.get("/getChat", { msg: rawText, prompt: "placeholder"}).done(function(data) {
             var botHtml = '<p class="botText"><span>' + data + '</span></p>';
             $("#chatbox").append(botHtml);
             document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
@@ -73,5 +73,6 @@
         </div>
     </div>
 </div>
+<div style=height:20px; ></div>
 </body>
 </html>

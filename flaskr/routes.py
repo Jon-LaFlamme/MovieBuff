@@ -17,12 +17,49 @@ cosmos_db = MoviebuffCosmos()
 mongo_db = MongoDB()
 
 convoList = []
+category = "search term"
+prompt = ""
+filterDict = {}
+
 ServicesList = ['Netflix', 'Prime', 'Hulu', 'Disney']
 earliestYear = 1900
 lowestRating = 0
 languageList = ['English','Spanish','German','Italian','French','Russian','Danish','Swedish','Japanese','Hindi','Mandarin','Arabic','Korean','Portugese']
 genreList = ['Action','Adventure','Animation','Biography','Comedy','Crime',
              'Drama','Fantasy','History','Horror','Musical','Mystery','Romance','Sci-Fi','Thriller','War','Western']
+
+
+NO = ['no', 'nope', 'no thanks', 'negative', 'n', 'sorry']
+YES = ['yes', 'sure', 'okay', 'alright', 'y', 'yup', 'ya', 'yeah','maybe', 'definitely', 'ok', 'k', 'possibly', 'certainly']
+AMBIGUOUS = ["any", "either", 'neither', 'none', 'all', "none", "no preference", "doesn't matter", "don't care"]
+CAST_CREW = ['cast/crew', 'cast/crew member' 'cast', 'crew', 'member' 'actor', 'director', 'writer',\
+         'producer', 'actress', 'cinematographer', 'person', 'human', 'people', 'role']
+MOVIE_NAME = ['title', 'movie', 'moviename', 'title name', 'movie name', 'show']
+KEYWORD = ['keyword', 'word', 'description', 'topic', 'topical']
+OLDER = ["older", "old", "classic", "before", "before 1970"]
+NEWER = ["new", "new release", "new-release", "newer", "recent", "new releases"]
+BETWEEN = ["in-between", "between", "in between"]
+SEARCHING = ["directly", "searching", "search", "query", "find", "direct", "specific", "find something"]
+FILTERING = ["guide", "guide me", "questions", "help", "help me"]
+
+
+ERROR = "I'm sorry, I don't understand. "
+GREETING = "Hi! I'm Candice. Can I help you find a movie today?"
+EXIT_STRING = "Sorry, I can't help you today. Please navigate to the home page to search titles yourself.\
+             If you change your mind, I will be here to help!"
+CHECK_QUERY_TYPE = "Would you like to find something specific or let me guide you with some questions?"
+DIRECT_QUERY_CATEGORY = "Perfect, would you like to search by title, cast/crew member or keyword?"
+DIRECT_QUERY_TERM_PREFIX = "Alright. What is the "
+DIRECT_QUERY_TERM_SUFFIX = " you'd like me to search for?"
+RESULTS = "Searching now.. Results should display momentarily."
+NO_RESULTS = "Sorry, I couldn't find any results matching your query. Please try another term."
+
+FILTER_GENRE_PREFIX = "No problem. We can narrow down your choices, starting with genre."
+FILTER_GENRE_SUFFIX = "Which genres are you interested in?"
+FILTER_LANGUAGE = "Are you intersted in foreign or domestic films?"
+FILTER_YEAR = "Are you looking for a new release, something older (before 1970), or something in-between?"
+FILTER_STREAMING = "Would you also like to limit results to movies you can stream?"
+FILTER_STREAMING_CHOICE = "Which streaming services? Netflix, Hulu, Disney or Prime?"
 
 FAILURE = [{'imdb_title_id':"",
         'title':"Sorry, No Titles Found",
@@ -48,6 +85,7 @@ trainer.train("chatterbot.corpus.english.greetings")
 trainer.train("chatterbot.corpus.english.conversations")
 
 listTrainer = ListTrainer(bot)
+
 
 
 for i in ServicesList:
@@ -81,33 +119,210 @@ def home():
 
 @app.route('/__Candice', methods=['GET','POST'])  #Basic Title Search/Home Page
 def Candice():
-    global convoList
-    convoList = []
+    global category
+    global filterDict
+    global prompt
+    category = None
+    filterDict = {'imdbStart': '0', 'imdbEnd': '10', 'sorting': 'avg_vote', 'streaming': []}
+    prompt = GREETING
     if request.method == 'GET':
         return render_template('candice.html')
 
+
+
 @app.route('/getChat')
-def get_bot_response():
+def getChat():
     userText = request.args.get('msg')
-    global convoList
+    words = userText.lower().split(" ")
+    global category
+    global filterDict
+    global prompt
+    
 
-    if (userText in genreList or userText in languageList or userText in ServicesList):
-        convoList.append(userText)
+    if prompt == EXIT_STRING:  #Restart chatbot convo on any input
+        prompt = GREETING
+        return 'Hello again! May I help you find a movie?' 
 
-    returnVal = str(bot.get_response(userText))
-    if returnVal.find("Searching...") == -1:
-        return returnVal
-    else:
-        finalString = ''
-        res = db.filter_chatbot(convoList[0])
-        res = filterLanguage([convoList[1]], res)
-        res = filterGenre([convoList[2]], res)
-        for i in res[:-1]:
-            finalString += i['title'] + ", "
-        finalString += res[-1]['title']
-        finalString += ". To begin again, re-enter the streaming service you would like to search, Netflix, Hulu, Prime, or Disney"
-        convoList = []
-        return finalString
+    elif prompt == GREETING:      #Hello, would you like help?     
+        for word in words:
+            if word in YES:
+                prompt = CHECK_QUERY_TYPE
+                return CHECK_QUERY_TYPE
+            elif word in NO:
+                prompt = EXIT_STRING
+                return EXIT_STRING
+        else:     
+            return ERROR + GREETING
+     
+    elif prompt == CHECK_QUERY_TYPE:    #Branch to filtering approach OR full text approach
+        for word in words:
+            if word in SEARCHING: # continue with full text search
+                prompt = DIRECT_QUERY_CATEGORY
+                return DIRECT_QUERY_CATEGORY 
+            elif word in FILTERING:    # switch to filtering approach
+                prompt = FILTER_GENRE_SUFFIX
+                return FILTER_GENRE_PREFIX + FILTER_GENRE_SUFFIX
+        else:
+            return ERROR + CHECK_QUERY_TYPE
+            
+    elif prompt == DIRECT_QUERY_CATEGORY:      #Prompt for direct query term
+        for word in words:
+            if word in CAST_CREW:
+                category = 'cast/crew'
+                prompt = DIRECT_QUERY_TERM_PREFIX
+                return DIRECT_QUERY_TERM_PREFIX + "person" + DIRECT_QUERY_TERM_SUFFIX
+            elif word in MOVIE_NAME:
+                category = 'title'
+                prompt = DIRECT_QUERY_TERM_PREFIX
+                return DIRECT_QUERY_TERM_PREFIX + "title" + DIRECT_QUERY_TERM_SUFFIX
+            elif word in KEYWORD:
+                category = 'description'
+                prompt = DIRECT_QUERY_TERM_PREFIX
+                return DIRECT_QUERY_TERM_PREFIX + "keyword" + DIRECT_QUERY_TERM_SUFFIX
+        else:
+            return ERROR + DIRECT_QUERY_CATEGORY
+    
+    elif DIRECT_QUERY_TERM_PREFIX == prompt:        #query user input text on category and return results
+        res = None
+        query = " ".join(words)
+        if category == "cast/crew": #working but to be replaced
+            cursor = mongo_db.full_text_search_name(query)
+            if cursor:
+                unique_res = set()
+                for x in cursor:
+                    unique_res.add(x['Name'])
+                names = list(unique_res)
+                print(names, file=sys.stderr)
+                res = mongo_db.query_by_person_many(names)
+          
+        #TODO custom template replacement for name search
+        #if category == "cast/crew":
+
+        elif category == "description":
+            #TODO Return custom html template with descriptions
+            cursor = mongo_db.full_text_search_description(query)
+            if cursor:
+                unique_res = set()
+                for x in cursor:
+                    unique_res.add(x["Imdb_Title_id"])
+                ids = list(unique_res)
+                print(ids, file=sys.stderr)
+                res = mongo_db.query_by_title_id_many(ids)
+        
+        #TODO custom templatee replacement for keyword search 
+        #elif category == "description":
+
+        else:
+            cursor = mongo_db.full_text_search_title(query)
+            if cursor:
+                unique_res = set()
+                for x in cursor:
+                    unique_res.add(x['title'])
+                titles = list(unique_res)
+                res = mongo_db.query_by_title_name_many(titles)
+        if not res:
+            return NO_RESULTS
+        else:         
+            results = []
+            for title in res:
+                results.append(title)
+            return render_template('results-mongo.html', results = results)
+
+    elif FILTER_GENRE_SUFFIX in prompt:     #Determine genre preferences
+        valid_genres = []
+        for word in words:      
+            if word in AMBIGUOUS:           
+                valid_genres = genreList 
+        if not valid_genres: 
+            for word in words:
+                word = word.replace(',', "").title().strip()
+                if word in genreList:
+                    valid_genres.append(word)
+        if valid_genres:
+            filterDict['genres'] = [valid_genres]
+            prompt = FILTER_LANGUAGE
+            return FILTER_LANGUAGE
+        else:
+            return ERROR + FILTER_GENRE_SUFFIX
+    
+    elif FILTER_LANGUAGE == prompt:     #Determine foreign or domestic
+        valid_languages = []
+        for word in words:
+            if word in AMBIGUOUS:           
+                valid_languages = languageList 
+        if not valid_languages:
+            for word in words:
+                word = word.replace(',', "").title().strip()
+                if word in ['English', 'Domestic', 'U.S.', 'Local', "United States", "English-language"]:
+                    valid_languages = ['English']
+                elif word in ["International", "Foreign", "Foreign-language"]:
+                    valid_languages = languageList
+                    valid_languages.pop(0)  #pops English
+                else:
+                    return ERROR + FILTER_LANGUAGE
+        if valid_languages:
+            filterDict['languages'] = [valid_languages]
+            prompt = FILTER_YEAR
+            return FILTER_YEAR
+        else:
+            return ERROR + FILTER_LANGUAGE
+                
+    elif FILTER_YEAR == prompt:
+        start = '1900'
+        end = '2021'
+        for word in words:
+            word = word.replace(',', "").strip()
+            print(word, file=sys.stderr) 
+            if word in NEWER:
+                start = '2019'
+            elif word in OLDER:
+                start = '1900'
+                end = '1969'
+            elif word in BETWEEN:
+                start = '1970'
+                end = '2018'
+            else:
+                return ERROR + FILTER_YEAR
+        filterDict['yearStart'] = start 
+        filterDict['yearEnd'] = end      
+        prompt = FILTER_STREAMING
+        return FILTER_STREAMING
+    
+    elif FILTER_STREAMING == prompt:
+        for word in words:
+            if word in YES:
+                prompt = FILTER_STREAMING_CHOICE
+                return FILTER_STREAMING_CHOICE
+            elif word not in NO:
+                return ERROR + FILTER_STREAMING
+        cursor = mongo_db.filter_query(filterDict)
+        res = [mov for mov in cursor]
+        if not res:
+            res = FAILURE
+        print(filterDict, file=sys.stderr)
+        return render_template('results-mongo.html', results = res)
+
+    elif FILTER_STREAMING_CHOICE == prompt:
+        for word in words:
+            word = word.title().strip()
+            if word in ServicesList:
+                services = filterDict['streaming']
+                services.append(word)
+                filterDict['streaming'] = [services]
+            else:
+                return ERROR + FILTER_STREAMING_CHOICE
+        cursor = mongo_db.filter_query(filterDict)
+        res = [mov for mov in cursor]
+        if not res:
+            res = FAILURE
+        print(filterDict, file=sys.stderr)
+        return render_template('results-mongo.html', results = res)
+    
+    else:   #Resets chatbot convo
+        return GREETING
+    
+
+    
 
 @app.route('/Login', methods=['GET','POST'])
 def login():
@@ -202,7 +417,7 @@ def process():
             res = filterGenre(Genres, res)
         if(addLanguages):
             res = filterLanguage(Languages, res)
-        return render_template('results.html', results = res)
+        return render_template('results-mongo.html', results = res)
     elif(request.json['sorting'] == 'year'):
         if(addServices):
             res = db.filter_streaming_date(query, Services)
@@ -222,7 +437,7 @@ def process():
             res = filterGenre(Genres, res)
         if(addLanguages):
             res = filterLanguage(Languages, res)
-        return render_template('results.html', results = res)
+        return render_template('results-mongo.html', results = res)
 
 
 @app.route('/search', methods=['GET','POST'])   #MongoDB
@@ -257,10 +472,6 @@ def search():
                 for x in cursor:
                     unique_res.add(x['title'])
                 res = list(unique_res)
-            else:   #category=="Search All"
-                #TODO Create FTS for multi-index search
-                pass
-            #print(res, file=sys.stderr)
             return jsonify(matching_results=res)
         else:
             return render_template('base-test-nosql.html')
