@@ -17,6 +17,15 @@
             "../static/images/MB.svg"
           type = "image/x-icon">
     <link rel="stylesheet" href="static/MovieBuffStyle.css">
+    <script type="text/javascript">
+        function OnloadFunction ()
+            {
+                //DUMMY QUERY TO READY MONGODB
+            $.get(
+            {url: Flask.url_for('dummyquery')});
+            }
+            $(document).ready(OnloadFunction);
+    </script>
 </head>
 <body style="background-color:black;color:silver">
 <div class="topnav">

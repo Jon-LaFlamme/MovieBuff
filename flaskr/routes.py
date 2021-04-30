@@ -35,8 +35,9 @@ AMBIGUOUS = ["any", "either", 'neither', 'none', 'all', "none", "no preference",
 CAST_CREW = ['cast/crew', 'cast/crew member', 'cast', 'crew', 'member', 'actor', 'director', 'writer',\
          'producer', 'actress', 'cinematographer', 'person', 'human', 'people', 'role']
 MOVIE_NAME = ['title', 'movie', 'moviename', 'title name', 'movie name', 'show']
-KEYWORD = ['keyword', 'word', 'description', 'topic', 'topical']
-OLDER = ["older", "old", "classic", "before", "before 1970"]
+KEYWORD = ['keyword', 'word', 'description', 'topic', 'topical', 'key']
+OLDER = ["older", "old", "classic", "before", "before 1970", "something older",\
+     "something older (before 1970)", "something older before 1970"]
 NEWER = ["new", "new release", "new-release", "newer", "recent", "new releases"]
 BETWEEN = ["in-between", "between", "in between"]
 SEARCHING = ["directly", "searching", "search", "query", "find", "direct", "specific", "find something"]
@@ -119,6 +120,7 @@ def home():
 
 @app.route('/__Candice', methods=['GET','POST'])  #Basic Title Search/Home Page
 def Candice():
+    mongo_db.query_by_person({'Name': "Brent Spiner"})  #dummy query to warmup connection
     global category
     global filterDict
     global prompt
@@ -185,14 +187,12 @@ def getChat():
     elif DIRECT_QUERY_TERM_PREFIX == prompt:        #direct query on selected category
         res = None
         query = " ".join(words)
-
         if category == "cast/crew":
             cursor = mongo_db.full_text_search_name(query)
             if cursor:
                 res = []
                 for x in cursor:
                     res.append({"Name": x['Name'], "category": x['category']})
-                print(res, file=sys.stderr)
                 return render_template('chatbot-search-person.html', results = res)
             else:
                 return render_template('results-mongo.html', results = FAILURE)
@@ -201,13 +201,21 @@ def getChat():
             cursor = mongo_db.full_text_search_description(query)
             if cursor:
                 res = []
+                ids = []
+                titles = {}
                 for x in cursor:
-                    print(x, file=sys.stderr)
-                    title = mongo_db.query_by_id(x["Imdb_Title_id"])
-                    if title:
-                        print(title, file=sys.stderr)
-                        res.append({"Imdb_Title_id": x["Imdb_Title_id"], "title": title["title"], "description": x["title"]})
-                print(res, file=sys.stderr)
+                    ids.append(x["Imdb_Title_id"])
+                    res.append({"Imdb_Title_id": x["Imdb_Title_id"], "description": x["title"]})
+                cursor = mongo_db.query_by_title_id_many(ids)
+                if cursor:     
+                    for x in cursor:
+                        titles.update({x["Imdb_Title_id"]: x['title']})
+                    for x in res:
+                        _id = x["Imdb_Title_id"]
+                        if _id in titles:
+                            x.update({'title': titles[_id]})
+                        else:
+                            res.remove(x)        
                 return render_template('chatbot-search-keyword.html', results = res)
             else:
                 return render_template('results-mongo.html', results = FAILURE)
@@ -321,7 +329,11 @@ def getChat():
     else:   #Resets chatbot convo
         return GREETING
     
-
+@app.route('/dummyquery')
+def dummyquery():
+    print("warming up MongoDB for subsequent pulls..", file=sys.stderr)
+    mongo_db.query_by_person({'Name': "Brent Spiner"})
+    return ""
     
 
 @app.route('/Login', methods=['GET','POST'])
