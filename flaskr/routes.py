@@ -11,6 +11,7 @@ from chatterbot.trainers import ListTrainer
 from flaskr import app
 import json
 from flaskr import sqls as sqls
+import random
 
 db = MoviebuffDB()
 cosmos_db = MoviebuffCosmos()
@@ -56,7 +57,8 @@ RESULTS = "Searching now.. Results should display momentarily."
 NO_RESULTS = "Sorry, I couldn't find any results matching your query. Please try another term."
 
 FILTER_GENRE_PREFIX = "No problem. We can narrow down your choices, starting with genre."
-FILTER_GENRE_SUFFIX = "Which genres are you interested in?"
+FILTER_GENRE_SUFFIX = "Which genres are you interested in? I'll list some choices for you...\
+            <br></br>" + "<br></br>".join(genreList)
 FILTER_LANGUAGE = "Are you intersted in foreign or domestic films?"
 FILTER_YEAR = "Are you looking for a new release, something older (before 1970), or something in-between?"
 FILTER_STREAMING = "Would you also like to limit results to movies you can stream?"

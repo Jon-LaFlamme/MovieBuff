@@ -16,24 +16,27 @@
             "../static/images/MB.svg"
           type = "image/x-icon">
     <link rel="stylesheet" href="static/MovieBuffStyle.css">
-
 </head>
-<body style="background-color:black;color:silver" padding-bottom: 100px;>
-<div class="topnav">
-    <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
-    {%if not session['login'] %}
-    <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
-    {%endif%}
-</div>
+<body style="background-color:black;color:silver">
+    <div class="topnav">
+        <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
+        <a href="{{ url_for('Candice') }}" style="font-family: papyrus;font-size:25px">Chatbot</a>
+        {%if not session['login'] %}
+        <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
+        {%else %}
+        <a href="{{ url_for('logout') }}" style="font-family: papyrus;font-size:25px">Log out</a>
+        {%endif%}
+    </div>
 <br>
 <div style="display:flex; flex-direction: row; justify-content: center;">
     <div style="text-align: center; vertical-align: top; flex-grow: 2;">
         <p style=font-size:48px>{{ title }}<br></p>
         
-        <p style=font-size:24px>PLACEHOLDER MovieBuff Score 4.5/5.0<br></p>
+        <p style=font-size:24px><br></p>
 
         <a href="{{ url_for('reviews', moviename=titleId)}}">Reviews for {{ title }}</a>
     </div>
+    <!-- -->
     <img src="{{ imgurl }}" alt="{{ imgurl }}" style="flex-grow:1; max-width: 300px; max-height: 500px;"> 
 </div>
 <br>
@@ -68,4 +71,5 @@
 
 </div>
 </body>
+<div class="bufferspace" style="padding:25px"></div>
 </html>
