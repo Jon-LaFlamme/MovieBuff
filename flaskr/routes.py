@@ -9,6 +9,7 @@ from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
 from chatterbot.trainers import ListTrainer
 from flaskr import app
+import requests
 import json
 from flaskr import sqls as sqls
 
@@ -292,7 +293,10 @@ def search():
 
 @app.route('/search/<moviename>')   #MongoDB
 def search_title(moviename):
-    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + moviename + ".jpg" 
+    imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + moviename + ".jpg"
+    request = requests.get(imgurl)
+    if request.status_code != 200:
+        imgurl = ''
     title = mongo_db.query_by_id(moviename)    
     title.pop("Imdb_Title_id")
     title.pop("_id")
@@ -337,7 +341,9 @@ def search_person(name):
 def movie(moviename):
     titleId = str(moviename)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
-
+    request = requests.get(imgurl)
+    if request.status_code != 200:
+        imgurl = ''
     dbRes = db.query_id(titleId)  
     if(dbRes):
         remove = []
