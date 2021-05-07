@@ -281,8 +281,6 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             sql = sqls.create_review
             num = c.execute(sql, (TitleID, UserID, Review, Score))
-            sql2 = sqls.update_view 
-            num = c.execute(sql2)
         self.close_connection()
         return {"Created": True}
 

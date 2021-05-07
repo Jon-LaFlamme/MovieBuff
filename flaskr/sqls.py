@@ -127,7 +127,6 @@ imdb_review_by_reviewId = "SELECT * FROM reviews JOIN reviewtext ON reviews.Revi
 
 remove_review_by_reviewId = "DELETE FROM reviews WHERE ReviewId = %s"
 remove_reviewtext_by_reviewId = "DELETE FROM reviewtext WHERE ReviewId = %s"
-update_view = "CALL updateView()"
 
 create_review = "CALL createReview(%s, %s, %s, %s)"
 
