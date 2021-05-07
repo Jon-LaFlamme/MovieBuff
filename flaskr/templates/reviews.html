@@ -53,6 +53,13 @@
                 <th>Full Review</th><th>Date of Review</th><th>Last Updated</th><th>Update</th><th>Delete</th></tr>
             </thead>
             <tbody>
+            {%if dbRes|length == 0%}
+            <tr><td colspan="9" style="text-align: center">No reviews yet. 
+                {%if session['login']%} 
+                Why don't you create one?
+                {%endif%}
+            </td></tr>
+            {%endif%}
             {% for row in dbRes %}
             <tr>
                 <td>
@@ -62,7 +69,7 @@
                     {{ row['CreatedByUserID']}}
                 </td>
                 <td>
-                    {{ row['reviewscore'] }}
+                    {{ row['ReviewScore'] }}
                 </td>
                 <td>
                     {{ row['Review'] }}

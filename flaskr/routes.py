@@ -619,7 +619,7 @@ def reviews(moviename):
     for i in dbRes:
         if i['CreatedByUserID'] == session['userID']:
             reviewed = True
-        avgScore.append(i['reviewscore'])
+        avgScore.append(i['ReviewScore'])
     avgScoreFinal = 0
     if(len(avgScore)):
         avgScoreFinal = round(sum(avgScore) / len(avgScore), 1)
@@ -636,6 +636,7 @@ def reviews_create(moviename):
         UserID = session['userID']
         Score = request.form.get("Score")
         Review = request.form.get("Review")
+        print(str(UserID) + "" + str(Score) + "" + str(titleId) + "" + str(Review))
         db.create_review(UserID, Score, titleId, Review)
         return redirect(url_for('reviews', moviename=titleId))
 
