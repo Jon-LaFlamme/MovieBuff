@@ -20,6 +20,7 @@ mongo_db = MongoDB()
 convoList = []
 category = "search term"
 prompt = ""
+back = []
 filterDict = {}
 
 ServicesList = ['Netflix', 'Prime', 'Hulu', 'Disney']
@@ -32,6 +33,7 @@ genreList = ['Action','Adventure','Animation','Biography','Comedy','Crime',
 
 NO = ['no', 'nope', 'no thanks', 'negative', 'n', 'sorry']
 YES = ['yes', 'sure', 'okay', 'alright', 'y', 'yup', 'ya', 'yeah','maybe', 'definitely', 'ok', 'k', 'possibly', 'certainly']
+BACK = ['back', 'b', 'go back', 'backwards', 'last']
 AMBIGUOUS = ["any", "either", 'neither', 'none', 'all', "none", "no preference", "doesn't matter", "don't care"]
 CAST_CREW = ['cast/crew', 'cast/crew member', 'cast', 'crew', 'member', 'actor', 'director', 'writer',\
          'producer', 'actress', 'cinematographer', 'person', 'human', 'people', 'role']
@@ -126,9 +128,11 @@ def Candice():
     global category
     global filterDict
     global prompt
+    global back     # LIFO/Stack for backup feature
     category = None
     filterDict = {'imdbStart': '0', 'imdbEnd': '10', 'sorting': 'avg_vote', 'streaming': []}
     prompt = GREETING
+    back.append(GREETING) 
     if request.method == 'GET':
         return render_template('candice.html')
 
@@ -141,16 +145,24 @@ def getChat():
     global category
     global filterDict
     global prompt
+    global back
+    if not back or prompt != back[-1]:
+        back.append(prompt)
     
-
     if prompt == EXIT_STRING:  #Restart chatbot convo on any input
         prompt = GREETING
         return 'Hello again! May I help you find a movie?' 
 
+    elif " ".join(words).strip() in BACK:     #Goes backwards in the chat dialogue
+        if len(back) >= 2:
+            back.pop()
+            prompt = back.pop()
+        return prompt
+
     elif prompt == GREETING:      #Hello, would you like help?     
         for word in words:
             if word in YES:
-                prompt = CHECK_QUERY_TYPE
+                prompt = CHECK_QUERY_TYPE  
                 return CHECK_QUERY_TYPE
             elif word in NO:
                 prompt = EXIT_STRING
@@ -161,6 +173,7 @@ def getChat():
     elif prompt == CHECK_QUERY_TYPE:    #Branch to filtering approach OR full text approach
         for word in words:
             if word in SEARCHING: # continue with full text search
+                back = prompt
                 prompt = DIRECT_QUERY_CATEGORY
                 return DIRECT_QUERY_CATEGORY 
             elif word in FILTERING:    # switch to filtering approach
