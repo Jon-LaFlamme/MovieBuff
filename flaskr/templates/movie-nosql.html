@@ -15,7 +15,7 @@
     <link rel = "icon" href =
             "../static/images/MB.svg"
           type = "image/x-icon">
-    <link rel="stylesheet" href="static/MovieBuffStyle.css">
+    <link rel="stylesheet" href="../static/MovieBuffStyle.css">
 </head>
 <body style="background-color:black;color:silver">
     <div class="topnav">
@@ -36,8 +36,11 @@
 
         <a href="{{ url_for('reviews', moviename=titleId)}}">Reviews for {{ title }}</a>
     </div>
-    <!-- -->
-    <img src="{{ imgurl }}" alt="{{ imgurl }}" style="flex-grow:1; max-width: 300px; max-height: 500px;"> 
+    <div class="row justify-content-center">
+        {%if imgurl|length > 0%}
+        <img src="{{ imgurl }}" alt="{{ imgurl }}" style="flex-grow:1; max-width: 300px; max-height: 500px;">
+        {%endif%}
+    </div>
 </div>
 <br>
 <div class="container">

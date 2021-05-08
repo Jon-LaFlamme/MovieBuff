@@ -42,7 +42,11 @@
             <a href="{{ url_for('movie', moviename=titleId)}}">Back to {{ title }}</a>
         </div>
     </div>
-    <!--<img src="{{ imgurl }}" alt="{{ imgurl }}" style="flex-grow:1; max-width: 300px; max-height: 500px;">-->
+    <div class="row justify-content-center">
+        {%if imgurl|length > 0%}
+        <img src="{{ imgurl }}" alt="{{ imgurl }}" style="flex-grow:1; max-width: 300px; max-height: 500px;">
+        {%endif%}
+    </div>
 </div>
 <br>
 <div class="container">
@@ -53,6 +57,13 @@
                 <th>Full Review</th><th>Date of Review</th><th>Last Updated</th><th>Update</th><th>Delete</th></tr>
             </thead>
             <tbody>
+            {%if dbRes|length == 0%}
+            <tr><td colspan="9" style="text-align: center">No reviews yet. 
+                {%if session['login']%} 
+                Why don't you create one?
+                {%endif%}
+            </td></tr>
+            {%endif%}
             {% for row in dbRes %}
             <tr>
                 <td>
@@ -62,7 +73,7 @@
                     {{ row['CreatedByUserID']}}
                 </td>
                 <td>
-                    {{ row['reviewscore'] }}
+                    {{ row['ReviewScore'] }}
                 </td>
                 <td>
                     {{ row['Review'] }}
