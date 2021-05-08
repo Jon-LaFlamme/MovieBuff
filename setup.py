@@ -7,6 +7,6 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'flask','Flask-SQLAlchemy',
+        'flask','flask_jsglue','flask_wtf','pymysql', 'wtforms_jsonschema2', 'json2html', 'pymongo', 'dnspython'
     ],
 )
