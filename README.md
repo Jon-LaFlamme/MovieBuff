@@ -14,9 +14,9 @@ MongoDB: Read-optimized NoSQL document store for all reads except for title revi
 
 ### Contributors:
 
-Sam Shiao
-Bryan Settles
-Sriram Ramathurthy Mohan
+Sam Shiao,
+Bryan Settles,
+Sriram Ramathurthy Mohan,
 Jon LaFlamme
 
 
