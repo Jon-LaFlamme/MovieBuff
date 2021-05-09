@@ -638,7 +638,7 @@ def reviews(moviename):
     reviewed = False
     avgScore = []
     for i in dbRes:
-        if i['CreatedByUserID'] == session['userID']:
+        if session['userID'] and i['CreatedByUserID'] == session['userID']:
             reviewed = True
         avgScore.append(i['ReviewScore'])
     avgScoreFinal = 0
