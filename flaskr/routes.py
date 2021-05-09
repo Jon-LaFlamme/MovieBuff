@@ -174,7 +174,6 @@ def getChat():
     elif prompt == CHECK_QUERY_TYPE:    #Branch to filtering approach OR full text approach
         for word in words:
             if word in SEARCHING: # continue with full text search
-                back = prompt
                 prompt = DIRECT_QUERY_CATEGORY
                 return DIRECT_QUERY_CATEGORY 
             elif word in FILTERING:    # switch to filtering approach
