@@ -43,6 +43,7 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchone()
+        self.close_connection()
         return res
 
     def query_nmData(self, query: str):
@@ -53,6 +54,7 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def query_movieName(self, query: str):
@@ -64,6 +66,7 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchone()
+        self.close_connection()
         return res
 
     def query_nm(self, query: str):
@@ -75,6 +78,7 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def query_rName(self, query: str):
@@ -86,6 +90,7 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()    
         return res
 
     def filter_chatbot(self, param):
@@ -190,13 +195,15 @@ class MoviebuffDB():
         if not self.driver:
             self.connect()
         sql = sqls.login
+        res = {"Query result": 0}
         with self.driver.cursor() as c:
             c.execute(sql, (userInfo[0], hashlib.md5(userInfo[1].encode()).hexdigest()))
             res = c.fetchone()
-            if(res['COUNT(*)'] >= 1):
-                return True
-            else:
-                return False
+        self.close_connection()
+        if(res['COUNT(*)'] >= 1):
+            return True
+        else:
+            return False
 
     def getUserID(self, query: str):
         if not self.driver:
@@ -206,6 +213,7 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchone()
+        self.close_connection()
         return res['UserID']
 
     def addUser(self, userInfo):
@@ -218,11 +226,14 @@ class MoviebuffDB():
                 c.execute(sqls.getUserNameCount, userInfo[0])
                 res = c.fetchone()
                 if (res['COUNT(*)'] >= 1):
+                    self.close_connection()
                     return False
                 c.execute(sql, (userInfo[0], userInfo[1], hashlib.md5(userInfo[2].encode()).hexdigest()))
                 self.driver.commit()
             except:
+                self.close_connection()
                 return False
+        self.close_connection()
         return True
 
     def query_id_reviews(self, query: str):
@@ -235,6 +246,7 @@ class MoviebuffDB():
         #    c.execute(sql, query)
             c.execute(sql2, query)
             res = c.fetchall()
+        self.close_connection()
         return res
  
     def query_review_by_reviewid(self, query: str):
@@ -245,6 +257,7 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def remove_review_by_reviewid(self, query: str):
@@ -255,6 +268,7 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def remove_reviewtext_by_reviewid(self, query: str):
@@ -265,6 +279,7 @@ class MoviebuffDB():
         with self.driver.cursor() as c:
             c.execute(sql, query)
             res = c.fetchall()
+        self.close_connection()
         return res
 
     def delete_review(self, s: str) -> dict:
