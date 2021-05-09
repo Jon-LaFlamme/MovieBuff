@@ -11,6 +11,9 @@ def clean_filters(form: dict) -> dict:
         form['streaming'] = [item for sublist in form['streaming'] for item in sublist] #flatten list
         if len(form["streaming"]) < 1:
             form.pop("streaming")
+        else:
+            if "Disney" in form["streaming"]:
+                form["streaming"].append("Disney+")
     if len(form['languages']) == 19 or len(form['languages']) == 0:
         form.pop('languages')
     if len(form['genres']) == 17 or len(form['genres']) == 0:

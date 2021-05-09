@@ -526,7 +526,7 @@ def search():
             cursor = mongo_db.filter_query(request.json)
             res = [mov for mov in cursor]
         if not res:
-            res = FAILURE   
+            res = FAILURE
         return render_template('results-mongo.html', results = res)  
 
 
