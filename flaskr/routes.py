@@ -631,6 +631,9 @@ def movie(moviename):
 def reviews(moviename):
     titleId = str(moviename)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
+    request = requests.get(imgurl)
+    if request.status_code != 200:
+        imgurl = ''
     dbRes = db.query_id_reviews(titleId)
     reviewed = False
     avgScore = []
@@ -654,7 +657,6 @@ def reviews_create(moviename):
         UserID = session['userID']
         Score = request.form.get("Score")
         Review = request.form.get("Review")
-        print(str(UserID) + "" + str(Score) + "" + str(titleId) + "" + str(Review))
         db.create_review(UserID, Score, titleId, Review)
         return redirect(url_for('reviews', moviename=titleId))
 
