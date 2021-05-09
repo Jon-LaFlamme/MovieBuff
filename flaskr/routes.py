@@ -359,7 +359,7 @@ def login():
         if db.login([request.form.get('User'),request.form.get('Password')]):
             session['login'] = True
             session['userID'] = int(db.getUserID(request.form.get('User')))
-            return render_template('base.html')
+            return redirect(url_for('search'))
         else:
             return render_template('login.html', failedLogin = True)
 
@@ -377,7 +377,7 @@ def newUser():
 def logout():
     session['login'] = False
     session['userID'] = 0
-    return render_template('base.html')
+    return redirect(url_for('search'))
 
 def filterGenre(Genres, res):
     delList = []
