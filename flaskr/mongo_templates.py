@@ -17,10 +17,11 @@ def clean_filters(form: dict) -> dict:
         form.pop('genres')
     if form['yearStart']=='1900' and form['yearEnd']=='2021':
         form.pop('yearStart')
-        form.pop('yearEnd')   
-    if (form['imdbStart']=='0' and form['imdbEnd']=='10'):
-        form.pop('imdbStart')
-        form.pop('imdbEnd')
+        form.pop('yearEnd')
+    if 'imdbStart' in form and 'imdbEnd' in form:
+        if (form['imdbStart']=='0' and form['imdbEnd']=='10'):
+            form.pop('imdbStart')
+            form.pop('imdbEnd')
 
     return form
 
