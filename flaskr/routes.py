@@ -359,7 +359,7 @@ def login():
         if db.login([request.form.get('User'),request.form.get('Password')]):
             session['login'] = True
             session['userID'] = int(db.getUserID(request.form.get('User')))
-            return render_template('base.html')
+            return redirect(url_for('search'))
         else:
             return render_template('login.html', failedLogin = True)
 
@@ -377,7 +377,7 @@ def newUser():
 def logout():
     session['login'] = False
     session['userID'] = 0
-    return render_template('base.html')
+    return redirect(url_for('search'))
 
 def filterGenre(Genres, res):
     delList = []
@@ -631,11 +631,14 @@ def movie(moviename):
 def reviews(moviename):
     titleId = str(moviename)
     imgurl = "https://moviebuffposters.blob.core.windows.net/images/" + titleId + ".jpg"
+    request = requests.get(imgurl)
+    if request.status_code != 200:
+        imgurl = ''
     dbRes = db.query_id_reviews(titleId)
     reviewed = False
     avgScore = []
     for i in dbRes:
-        if i['CreatedByUserID'] == session['userID']:
+        if session['userID'] and i['CreatedByUserID'] == session['userID']:
             reviewed = True
         avgScore.append(i['ReviewScore'])
     avgScoreFinal = 0
@@ -654,7 +657,6 @@ def reviews_create(moviename):
         UserID = session['userID']
         Score = request.form.get("Score")
         Review = request.form.get("Review")
-        print(str(UserID) + "" + str(Score) + "" + str(titleId) + "" + str(Review))
         db.create_review(UserID, Score, titleId, Review)
         return redirect(url_for('reviews', moviename=titleId))
 
