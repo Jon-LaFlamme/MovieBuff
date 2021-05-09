@@ -42,7 +42,7 @@ MOVIE_NAME = ['title', 'movie', 'moviename', 'title name', 'movie name', 'show']
 KEYWORD = ['keyword', 'word', 'description', 'topic', 'topical', 'key']
 OLDER = ["older", "old", "classic", "before", "before 1970", "something older",\
      "something older (before 1970)", "something older before 1970"]
-NEWER = ["new", "new release", "new-release", "newer", "recent", "new releases"]
+NEWER = ["new", "release", "new-release", "newer", "recent", "releases"]
 BETWEEN = ["in-between", "between", "in between"]
 SEARCHING = ["directly", "searching", "search", "query", "find", "direct", "specific", "find something"]
 FILTERING = ["guide", "guide me", "questions", "help", "help me"]
