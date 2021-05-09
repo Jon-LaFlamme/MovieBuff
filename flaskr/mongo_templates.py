@@ -89,6 +89,8 @@ def year_range(form: dict) -> dict:
 def rating_range(form: dict) -> dict:
     start = form['imdbStart']
     end = form['imdbEnd']
+    if end == "10":
+        end = "9.99"
     return { "avg_vote" : { "$gte" :  start, "$lte" : end}}
 
 def query_titles_by_person(name: str) -> dict:
