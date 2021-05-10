@@ -1,5 +1,13 @@
 """ Mongo_templates: Query templates for various filtering and ordering operations"""
 
+LANG_BITMAP = {'Arabic': 1, 'Cantonese': 2, 'Danish': 4, 'English': 8, 'French': 16, 'German': 32, 'Hebrew': 64\
+    , 'Hindi': 128, 'Italian': 256, 'Japanese': 512, 'Korean': 1024, 'Latin': 2048, 'Mandarin': 4096, 'Other': 8192\
+        , 'Portugese': 16384, 'Russian': 32768, 'Spanish': 65536, 'Swedish': 131072, 'Ukrainian': 262144}
+GENRE_BITMAP = {'Action': 1, 'Adventure': 2, 'Animation': 4, 'Biography': 8, 'Comedy': 16, 'Crime': 32, 'Drama': 64\
+    , 'Fantasy': 128, 'History': 256, 'Horror': 512, 'Musical': 1024, 'Mystery': 2048, 'Romance': 4096, 'Sci-Fi': 8192\
+        , 'Thriller': 16384, 'War': 32768, 'Western': 65536}
+STREAM_BITMAP = {'Disney': 1, 'Hulu': 2, 'Netflix': 4, 'Prime': 8}
+
 
 def clean_filters(form: dict) -> dict:
     '''Process filter fields'''
@@ -28,10 +36,48 @@ def clean_filters(form: dict) -> dict:
 
     return form
 
+def bitmap_filter_query(form: dict) -> dict:
+    """ Returns aggregate query if bitmap filtering required """
+    query = {}
+    if "languages" in form and len(form['languages'])>1:
+        langs = [x.strip() for x in form['languages']]
+        mask = 0
+        for x in langs:
+            if x in LANG_BITMAP:
+                mask = mask | LANG_BITMAP[x]
+        print("lang mask", mask)     
+        query.update({"bin_language": {"$bitsAnySet": mask}})
+    if "genres" in form and len(form['genres'])>1:
+        gens = [x.strip() for x in form['genres']]
+        mask = 0
+        for x in gens:
+            if x in GENRE_BITMAP:
+                mask = mask | GENRE_BITMAP[x]  
+        print("genres mask", mask)   
+        query.update({"bin_genre": {"$bitsAnySet": mask}})
+    if "streaming" in form and len(form['streaming'])>1:
+        streams = [x.strip() for x in form['streaming']]
+        mask = 0
+        for x in streams:
+            if x in STREAM_BITMAP:
+                mask = mask | STREAM_BITMAP[x]  
+        print("streams mask", mask)   
+        query.update({"bin_stream": {"$bitsAnySet": mask}})
+    if query:
+        if "yearStart" in form:
+            q = year_range(form)
+            query.update(q)   
+        if "imdbStart" in form:
+            q = rating_range(form)
+            query.update(q)
+        order = order_by(form)["$orderby"]
+        return {"$query": query, "$orderby": order}
+    else:
+        return {}
+
 
 def filter_query(form: dict) -> dict:
     """Clean filters and select correct query string"""
-    form = clean_filters(form)
     query = {}
     filters = ["languages", "genres" , "streaming"]
     for f in filters:
@@ -39,7 +85,6 @@ def filter_query(form: dict) -> dict:
             q = lang_genre_stream(form)
             query.update(q)
             break
-  
     if "yearStart" in form:
         q = year_range(form)
         query.update(q)   

@@ -70,8 +70,20 @@ class MongoDB():
 
     def filter_query(self, form: dict): #-> cursor object
         """Home Page multiple filter and order query"""
+        form = templates.clean_filters(form)
+        bitmap_query = templates.bitmap_filter_query(form)
         if not self.client:
             self.connect()
+        if bitmap_query:
+            print("This is the bitmap filter query: ", bitmap_query)
+            cursor = self.client.moviebuff.bitmap.find(bitmap_query).limit(25)
+            id_list = []
+            if cursor:
+                for x in cursor:
+                    id_list.append(x["Imdb_Title_id"])
+            order = templates.order_by(form)["$orderby"]
+            return self.db.find({"$query": { "Imdb_Title_id": { "$in": id_list}}, "$orderby": order})
+
         query = templates.filter_query(form)
         print("This is the full filter query: ", query)
         return self.db.find(query).limit(25)
