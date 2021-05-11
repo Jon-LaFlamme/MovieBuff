@@ -29,11 +29,11 @@
     <div class="row justify-content-center">
         <div class="col text-center">
             <br><br>
-            <br><br>
+            <br>Your Rating<br>
             <form action="{{ url_for('reviews_update', moviename=titleId, reviewId=reviewId) }}" method="POST">
-                <input type="number" name="Score" placeholder="Stars" min="1" max="10">
+                <input type="number" name="Score" min="1" max="10">
                 <br><br>
-                <input type="text" name="Review" placeholder="Review">
+                <input type="text" name="Review" placeholder="Update your review..." style='width:800px'>
                 <br><br>
                 <input type="submit" value="Submit">
             </form>
