@@ -32,6 +32,7 @@ genreList = ['Action','Adventure','Animation','Biography','Comedy','Crime',
              'Drama','Fantasy','History','Horror','Musical','Mystery','Romance','Sci-Fi','Thriller','War','Western']
 
 
+ANY = ["any", 'all', 'all of the above', 'all of them', 'every', 'every one']
 NO = ['no', 'nope', 'no thanks', 'negative', 'n', 'sorry']
 YES = ['yes', 'sure', 'okay', 'alright', 'y', 'yup', 'ya', 'yeah','maybe', 'definitely', 'ok', 'k', 'possibly', 'certainly']
 BACK = ['back', 'b', 'go back', 'backwards', 'last']
@@ -326,14 +327,17 @@ def getChat():
         return render_template('results-mongo.html', results = res)
 
     elif FILTER_STREAMING_CHOICE == prompt:
-        for word in words:
-            word = word.title().strip()
-            if word in ServicesList:
-                services = filterDict['streaming']
-                services.append(word)
-                filterDict['streaming'] = [services]
-            else:
-                return ERROR + FILTER_STREAMING_CHOICE
+        if " ".join(words) in ANY:
+            filterDict['streaming'] = [ServicesList]
+        else:
+            for word in words:
+                word = word.title().strip()
+                if word in ServicesList:
+                    services = filterDict['streaming']
+                    services.append(word)
+                    filterDict['streaming'] = [services]
+                else:
+                    return ERROR + FILTER_STREAMING_CHOICE
         cursor = mongo_db.filter_query(filterDict)
         res = [mov for mov in cursor]
         if not res:

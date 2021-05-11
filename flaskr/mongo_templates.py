@@ -39,15 +39,15 @@ def clean_filters(form: dict) -> dict:
 def bitmap_filter_query(form: dict) -> dict:
     """ Returns aggregate query if bitmap filtering required """
     query = {}
-    if "languages" in form and len(form['languages'])>1:
+    if "languages" in form:
         langs = [x.strip() for x in form['languages']]
         mask = 0
         for x in langs:
             if x in LANG_BITMAP:
                 mask = mask | LANG_BITMAP[x]
         print("lang mask", mask)     
-        query.update({"bin_language": {"$bitsAnySet": mask}})
-    if "genres" in form and len(form['genres'])>1:
+        query.update({"bin_language": {"$bitsAllSet": mask}})
+    if "genres" in form:
         gens = [x.strip() for x in form['genres']]
         mask = 0
         for x in gens:
@@ -55,7 +55,7 @@ def bitmap_filter_query(form: dict) -> dict:
                 mask = mask | GENRE_BITMAP[x]  
         print("genres mask", mask)   
         query.update({"bin_genre": {"$bitsAnySet": mask}})
-    if "streaming" in form and len(form['streaming'])>1:
+    if "streaming" in form:
         streams = [x.strip() for x in form['streaming']]
         mask = 0
         for x in streams:
