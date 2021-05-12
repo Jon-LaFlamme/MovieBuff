@@ -159,6 +159,15 @@ def getChat():
         if len(back) >= 2:
             back.pop()
             prompt = back.pop()
+            if prompt in FILTER_GENRE_SUFFIX:
+                if  'genes' in filterDict:
+                    filterDict['genres'] = None
+            if prompt in FILTER_LANGUAGE:
+                if  'languages' in filterDict:
+                    filterDict['languages'] = None
+                    filterDict['streaming'] = []
+            if prompt in FILTER_STREAMING:
+                filterDict['streaming'] = []     
         return prompt
 
     elif prompt == GREETING:      #Hello, would you like help?     
@@ -263,13 +272,13 @@ def getChat():
                 if word in genreList:
                     valid_genres.append(word)
         if valid_genres:
-            filterDict['genres'] = [valid_genres]
+            filterDict['genres'] = valid_genres
             prompt = FILTER_LANGUAGE
             return FILTER_LANGUAGE
         else:
             return ERROR + FILTER_GENRE_SUFFIX
     
-    elif FILTER_LANGUAGE == prompt:     #Determine foreign or domestic
+    elif prompt in FILTER_LANGUAGE:     #Determine foreign or domestic
         valid_languages = []
         for word in words:
             if word in AMBIGUOUS:           
@@ -279,13 +288,15 @@ def getChat():
                 word = word.replace(',', "").title().strip()
                 if word in ['English', 'Domestic', 'U.S.', 'Local', "United States", "English-language"]:
                     valid_languages = ['English']
+                    filterDict["not_english"] = False
                 elif word in ["International", "Foreign", "Foreign-language"]:
                     valid_languages = languageList
+                    filterDict["not_english"] = True
                     valid_languages.pop(0)  #pops English
                 else:
                     return ERROR + FILTER_LANGUAGE
         if valid_languages:
-            filterDict['languages'] = [valid_languages]
+            filterDict['languages'] = valid_languages
             prompt = FILTER_YEAR
             return FILTER_YEAR
         else:
@@ -319,25 +330,34 @@ def getChat():
                 return FILTER_STREAMING_CHOICE
             elif word not in NO:
                 return ERROR + FILTER_STREAMING
+        filterDict['genres'] = [[x] for x in filterDict['genres']]
+        filterDict['languages'] = [[x] for x in filterDict['languages']]
+        if 'streaming' in filterDict:
+            filterDict['streaming'] = [[x] for x in filterDict['streaming']]
+        print("chatbot query: ", filterDict, file=sys.stderr)
         cursor = mongo_db.filter_query(filterDict)
         res = [mov for mov in cursor]
         if not res:
             res = FAILURE
-        print(filterDict, file=sys.stderr)
         return render_template('results-mongo.html', results = res)
 
-    elif FILTER_STREAMING_CHOICE == prompt:
+    elif prompt in FILTER_STREAMING_CHOICE:
+        print("streaming choices: ", words, file=sys.stderr)
         if " ".join(words) in ANY:
-            filterDict['streaming'] = [ServicesList]
+            filterDict['streaming'] = ServicesList
         else:
+            services = []
             for word in words:
-                word = word.title().strip()
+                word = word.title().replace(",","").title().strip()     
                 if word in ServicesList:
-                    services = filterDict['streaming']
                     services.append(word)
-                    filterDict['streaming'] = [services]
+                    filterDict['streaming'] = services
                 else:
                     return ERROR + FILTER_STREAMING_CHOICE
+        filterDict['genres'] = [[x] for x in filterDict['genres']]
+        filterDict['languages'] = [[x] for x in filterDict['languages']]
+        filterDict['streaming'] = [[x] for x in filterDict['streaming']]
+        print("chatbot query: ", filterDict, file=sys.stderr)
         cursor = mongo_db.filter_query(filterDict)
         res = [mov for mov in cursor]
         if not res:
@@ -527,6 +547,7 @@ def search():
             else:
                 res = FAILURE
         else:
+            print(request.json, file=sys.stderr)
             cursor = mongo_db.filter_query(request.json)
             res = [mov for mov in cursor]
         if not res:

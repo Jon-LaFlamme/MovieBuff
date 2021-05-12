@@ -40,13 +40,25 @@ def bitmap_filter_query(form: dict) -> dict:
     """ Returns aggregate query if bitmap filtering required """
     query = {}
     if "languages" in form:
-        langs = [x.strip() for x in form['languages']]
-        mask = 0
-        for x in langs:
-            if x in LANG_BITMAP:
-                mask = mask | LANG_BITMAP[x]
-        print("lang mask", mask)     
-        query.update({"bin_language": {"$bitsAllSet": mask}})
+        if "not_english" in form:   #chatbot custom bitmask operation
+            if form["not_english"]:
+                query.update({"bin_language": {"$bitsAllClear": 8}})
+            else:
+                mask = 0
+                for x in LANG_BITMAP:
+                    mask = mask | LANG_BITMAP[x]
+                query.update({"$and": [
+                                {"bin_language": {"$bitsAllSet": 8}},
+                                {"bin_language": {"$bitsAllClear": mask-8}}
+                            ]})
+        else:
+            langs = [x.strip() for x in form['languages']]
+            mask = 0
+            for x in langs:
+                if x in LANG_BITMAP:
+                    mask = mask | LANG_BITMAP[x]
+            print("lang mask", mask)     
+            query.update({"bin_language": {"$bitsAllSet": mask}})
     if "genres" in form:
         gens = [x.strip() for x in form['genres']]
         mask = 0
